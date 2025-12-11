@@ -1,0 +1,21 @@
+{
+  "name": "synesthetic-viz-frontend",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Frontend for Synesthetic Audio Visualization System",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext js,jsx",
+    "format": "prettier --write \"src/**/*.{js,jsx,json,css}\""
+  },
+  "dependencies": {
+    "three": "^0.158.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "eslint": "^8.54.0",
+    "prettier": "^3.1.0"
+  }
+}
