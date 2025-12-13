@@ -1,0 +1,20 @@
+# Core dependencies
+numpy>=1.21.0
+opencv-python>=4.5.0
+scikit-learn>=1.0.0
+scipy>=1.7.0
+matplotlib>=3.4.0
+Pillow>=8.0.0
+
+# Style Transfer - ControlNet (local processing)
+torch>=2.0.0
+diffusers>=0.25.0
+transformers>=4.30.0
+accelerate>=0.20.0
+controlnet_aux>=0.0.7
+
+# Style Transfer - API engines (optional)
+# Uncomment to enable:
+# replicate>=0.20.0  # For Replicate API
+# openai>=1.0.0      # For DALL-E/GPT-4 Vision
+# anthropic>=0.8.0   # For Claude

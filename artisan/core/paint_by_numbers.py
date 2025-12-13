@@ -1,6 +1,43 @@
 """
 Paint by Numbers Image Processor
-Converts any image into a paint-by-numbers template with N colors
+================================
+
+Core module for converting images into paint-by-numbers templates.
+
+This module provides the PaintByNumbers class which handles:
+- Color quantization using K-means clustering in LAB color space
+- Region segmentation using connected component analysis
+- Template generation with numbered regions
+- Color matching to commercial paint databases
+- Visualization and export of results
+
+Example Usage:
+    >>> pbn = PaintByNumbers('landscape.jpg', n_colors=15, min_region_size=50)
+    >>> pbn.quantize_colors()      # Reduce to N colors
+    >>> pbn.create_regions()        # Segment into paintable regions
+    >>> pbn.create_template()       # Generate numbered template
+    >>> matched = pbn.match_to_paint_colors()  # Match to paints
+    >>> pbn.visualize_results('output.png')
+
+    # Or use the all-in-one method:
+    >>> pbn = PaintByNumbers('landscape.jpg', n_colors=15)
+    >>> pbn.process_all('output_folder/')
+
+Algorithm:
+    1. Load image and convert to LAB color space (perceptually uniform)
+    2. Apply K-means clustering to reduce colors
+    3. Use connected components to find contiguous regions
+    4. Merge small regions into neighbors
+    5. Generate template with region boundaries and numbers
+    6. Match extracted colors to paint database
+
+Dependencies:
+    - numpy: Array operations
+    - opencv-python (cv2): Image processing
+    - scikit-learn: K-means clustering
+    - scipy: Color distance calculations
+    - matplotlib: Visualization
+    - Pillow: Text rendering on templates
 """
 
 import numpy as np
@@ -11,6 +48,7 @@ from collections import Counter
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw, ImageFont
 import json
+
 
 class PaintByNumbers:
     def __init__(self, image_path, n_colors=20, min_region_size=10):

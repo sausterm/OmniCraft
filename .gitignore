@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+.env
+
+# Model weights (large files)
+*.pt
+*.pth
+*.onnx
+*.safetensors
+
+# Output directories
+artisan/output/
+synesthetic-viz/output/
+output/
+
+# Input test images (optional - remove if you want to track them)
+# artisan/input/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp
