@@ -3,11 +3,12 @@ YOLO + Bob Ross Smart Paint by Numbers
 
 Combines:
 1. YOLO semantic segmentation for true object boundaries (Dogs, Trees, Grass, etc.)
-2. Bob Ross style layer analysis WITHIN each semantic region
-3. Back-to-front painting with progressive value building
+2. Scene context analysis (time of day, weather, setting, lighting, mood)
+3. Subject-specific, context-aware painting strategies
+4. Spatial back-to-front layering (not just luminosity-based)
 
-Result: Each semantic region (Dog, Trees, etc.) gets its own full painting treatment
-with darks→midtones→highlights, following Bob Ross methodology.
+Result: Each semantic region gets intelligent, context-aware painting treatment
+that varies based on WHAT it is and WHEN/WHERE the scene takes place.
 """
 
 import os
@@ -19,6 +20,10 @@ from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass, field
 
 from ..perception.yolo_segmentation import YOLOSemanticSegmenter, SemanticRegion, YOLO_AVAILABLE
+from ..perception.scene_context import SceneContextAnalyzer, SceneContext, TimeOfDay, Weather
+from ..perception.layering_strategies import (
+    LayeringStrategyEngine, LayerSubstep, SubjectType, classify_subject
+)
 
 
 @dataclass
@@ -143,6 +148,10 @@ class YOLOBobRossPaint:
         # Initialize YOLO segmenter
         self.segmenter = YOLOSemanticSegmenter(model_size=model_size)
 
+        # Scene context (will be analyzed during process)
+        self.scene_context: Optional[SceneContext] = None
+        self.strategy_engine: Optional[LayeringStrategyEngine] = None
+
         # Results
         self.semantic_regions: List[SemanticRegion] = []
         self.painting_layers: List[SemanticPaintingLayer] = []
@@ -150,17 +159,31 @@ class YOLOBobRossPaint:
     def process(self) -> List[SemanticPaintingLayer]:
         """
         Full processing pipeline:
-        1. YOLO semantic segmentation
-        2. Enforce exclusive boundaries
-        3. Create Bob Ross substeps for each semantic region
-        4. Generate painting instructions
+        1. Analyze scene context (day/night, weather, setting, mood)
+        2. YOLO semantic segmentation
+        3. Enforce exclusive boundaries
+        4. Create context-aware, spatially-ordered substeps
+        5. Generate painting instructions
         """
         print("=" * 60)
-        print("YOLO + BOB ROSS SMART PAINT")
+        print("YOLO + BOB ROSS SMART PAINT (Context-Aware)")
         print("=" * 60)
 
-        # Step 1: YOLO segmentation
-        print("\n[1/5] Running YOLO semantic segmentation...")
+        # Step 1: Scene context analysis
+        print("\n[1/6] Analyzing scene context...")
+        analyzer = SceneContextAnalyzer(self.image)
+        self.scene_context = analyzer.analyze()
+        self.strategy_engine = LayeringStrategyEngine(self.scene_context)
+
+        print(f"  Time of day: {self.scene_context.time_of_day.value}")
+        print(f"  Weather: {self.scene_context.weather.value}")
+        print(f"  Setting: {self.scene_context.setting.value}")
+        print(f"  Lighting: {self.scene_context.lighting.value}")
+        print(f"  Mood: {self.scene_context.mood.value}")
+        print(f"  Light direction: {self.scene_context.light_direction}")
+
+        # Step 2: YOLO segmentation
+        print("\n[2/6] Running YOLO semantic segmentation...")
         self.semantic_regions = self.segmenter.segment(
             self.image,
             conf_threshold=self.conf_threshold,
@@ -168,25 +191,26 @@ class YOLOBobRossPaint:
         )
         print(f"  Found {len(self.semantic_regions)} semantic regions")
 
-        # Step 2: Enforce exclusive boundaries
-        print("\n[2/5] Enforcing exclusive semantic boundaries...")
+        # Step 3: Enforce exclusive boundaries
+        print("\n[3/6] Enforcing exclusive semantic boundaries...")
         self._enforce_exclusive_boundaries()
 
-        # Step 3: Create painting layers with Bob Ross substeps
-        print("\n[3/5] Creating Bob Ross painting layers...")
+        # Step 4: Create painting layers with context-aware substeps
+        print("\n[4/6] Creating context-aware painting layers...")
         self._create_painting_layers()
 
-        # Step 4: Generate Bob Ross style instructions
-        print("\n[4/5] Generating Bob Ross instructions...")
+        # Step 5: Generate Bob Ross style instructions
+        print("\n[5/6] Generating Bob Ross instructions...")
         self._generate_bob_ross_instructions()
 
-        # Step 5: Summary
-        print("\n[5/5] Finalizing painting plan...")
+        # Step 6: Summary
+        print("\n[6/6] Finalizing painting plan...")
         total_substeps = sum(len(l.substeps) for l in self.painting_layers)
 
         print(f"\n{'='*60}")
         print("PAINTING PLAN COMPLETE")
         print(f"{'='*60}")
+        print(f"  Scene: {self.scene_context.time_of_day.value} / {self.scene_context.weather.value}")
         print(f"  {len(self.painting_layers)} semantic regions")
         print(f"  {total_substeps} total painting substeps")
         print("\nPAINTING ORDER (back to front):")
@@ -246,7 +270,7 @@ class YOLOBobRossPaint:
         print(f"  Overlapping: {np.sum(all_masks > 1)} (should be 0)")
 
     def _create_painting_layers(self):
-        """Convert semantic regions to painting layers with Bob Ross substeps."""
+        """Convert semantic regions to painting layers with context-aware substeps."""
         self.painting_layers = []
 
         for i, region in enumerate(self.semantic_regions):
@@ -280,102 +304,241 @@ class YOLOBobRossPaint:
                 color_palette=palette,
             )
 
-            # Create Bob Ross substeps
-            layer.substeps = self._create_bob_ross_substeps(layer)
+            # Classify subject type and get context-aware strategy
+            subject_type = classify_subject(region.name)
+            strategy_substeps = self.strategy_engine.get_strategy(
+                subject_type,
+                region.mask,
+                self.image,
+                is_focal=region.is_focal
+            )
+
+            # Convert strategy substeps to painting substeps with actual masks
+            layer.substeps = self._create_substeps_from_strategy(layer, strategy_substeps)
 
             self.painting_layers.append(layer)
-            print(f"  {layer.name}: {len(layer.substeps)} substeps")
+            print(f"  {layer.name} ({subject_type.value}): {len(layer.substeps)} substeps")
 
-    def _create_bob_ross_substeps(self, layer: SemanticPaintingLayer) -> List[PaintingSubstep]:
+    def _create_substeps_from_strategy(
+        self,
+        layer: SemanticPaintingLayer,
+        strategy_substeps: List[LayerSubstep]
+    ) -> List[PaintingSubstep]:
         """
-        Create Bob Ross style substeps for a semantic region.
+        Convert strategy substeps to painting substeps with actual masks.
 
-        Bob Ross methodology:
-        1. Block in the darks (establish shadows)
-        2. Add the mid-tones (main colors)
-        3. Build up the lights
-        4. Add highlights and details last
+        Handles different mask_method types:
+        - "luminosity": Traditional dark-to-light masking
+        - "spatial_back", "spatial_front", "spatial_mid": Back-to-front depth masking
+        - "spatial_top", "spatial_bottom": Vertical position masking (for grass, sky)
+        - "spatial_left", "spatial_right": Horizontal position masking
+        - "full": Entire region
         """
         substeps = []
-        region_lum = self.luminosity[layer.mask]
 
-        if len(region_lum) == 0:
-            return substeps
-
-        # Determine number of substeps based on region importance
-        if layer.is_focal:
-            n_steps = min(self.substeps_per_region + 1, 5)  # More steps for focal
-        elif layer.coverage > 0.3:
-            n_steps = self.substeps_per_region
-        else:
-            n_steps = max(2, self.substeps_per_region - 1)
-
-        # Bob Ross step names and techniques
-        step_configs = {
-            2: [
-                ("Dark Values", "blocking", 0.0, 0.5),
-                ("Highlights", "highlighting", 0.5, 1.0),
-            ],
-            3: [
-                ("Shadows", "shadow", 0.0, 0.33),
-                ("Mid-Tones", "layering", 0.33, 0.67),
-                ("Highlights", "highlighting", 0.67, 1.0),
-            ],
-            4: [
-                ("Deep Shadows", "blocking", 0.0, 0.25),
-                ("Shadow Tones", "shadow", 0.25, 0.5),
-                ("Light Tones", "layering", 0.5, 0.75),
-                ("Highlights", "highlighting", 0.75, 1.0),
-            ],
-            5: [
-                ("Deep Shadows", "blocking", 0.0, 0.2),
-                ("Shadow Areas", "shadow", 0.2, 0.4),
-                ("Mid-Tones", "layering", 0.4, 0.6),
-                ("Light Areas", "blending", 0.6, 0.8),
-                ("Bright Highlights", "highlighting", 0.8, 1.0),
-            ],
-        }
-
-        configs = step_configs.get(n_steps, step_configs[4])
-
-        # Calculate luminosity percentiles for this region
-        percentiles = np.percentile(region_lum, [c[2]*100 for c in configs] + [100])
-
-        for i, (name, technique, pct_min, pct_max) in enumerate(configs):
-            lum_min = percentiles[i]
-            lum_max = percentiles[i + 1] if i + 1 < len(percentiles) else 1.0
-
-            # Create mask for this luminosity range within the semantic region
-            if i == len(configs) - 1:
-                sub_mask = layer.mask & (self.luminosity >= lum_min)
-            else:
-                sub_mask = layer.mask & (self.luminosity >= lum_min) & (self.luminosity < lum_max)
+        for i, strategy_step in enumerate(strategy_substeps):
+            # Generate mask based on mask_method
+            sub_mask = self._generate_mask_for_strategy(
+                layer.mask,
+                strategy_step.mask_method,
+                strategy_step.mask_params
+            )
 
             if np.sum(sub_mask) == 0:
                 continue
 
-            # Get properties
+            # Get properties for this substep mask
             sub_pixels = self.image[sub_mask]
             sub_color = tuple(np.median(sub_pixels, axis=0).astype(int))
-            sub_lum = np.mean(self.luminosity[sub_mask])
+            sub_lum_values = self.luminosity[sub_mask]
+            sub_lum = float(np.mean(sub_lum_values))
+            lum_range = (float(np.min(sub_lum_values)), float(np.max(sub_lum_values)))
 
             substep = PaintingSubstep(
                 id=f"{layer.id}_sub{i+1}",
-                name=f"{layer.name} - {name}",
+                name=f"{layer.name} - {strategy_step.name}",
                 parent_region=layer.name,
                 substep_order=i + 1,
                 mask=sub_mask,
-                coverage=np.sum(sub_mask) / np.sum(layer.mask),
-                luminosity_range=(float(lum_min), float(lum_max)),
+                coverage=np.sum(sub_mask) / max(1, np.sum(layer.mask)),
+                luminosity_range=lum_range,
                 dominant_color=sub_color,
-                avg_luminosity=float(sub_lum),
-                technique=technique,
-                brush_suggestion=self.BRUSH_MAP.get(technique, "1-inch brush"),
-                stroke_direction=self.STROKE_MAP.get(technique, "natural strokes"),
+                avg_luminosity=sub_lum,
+                technique=strategy_step.technique,
+                brush_suggestion=strategy_step.brush,
+                stroke_direction=strategy_step.stroke,
+                tips=strategy_step.tips.copy(),
+                instruction=strategy_step.description,
             )
             substeps.append(substep)
 
         return substeps
+
+    def _generate_mask_for_strategy(
+        self,
+        region_mask: np.ndarray,
+        mask_method: str,
+        mask_params: Dict
+    ) -> np.ndarray:
+        """
+        Generate a mask based on the strategy's mask_method.
+
+        Spatial methods use position within the region's bounding box.
+        Luminosity methods use brightness values.
+        """
+        if mask_method == "full":
+            return region_mask.copy()
+
+        elif mask_method == "luminosity":
+            # Traditional luminosity-based masking
+            lum_range = mask_params.get("range", (0.0, 1.0))
+            region_lum = self.luminosity.copy()
+            region_lum[~region_mask] = -1  # Mark non-region pixels
+
+            # Calculate percentiles within the region
+            region_lum_values = self.luminosity[region_mask]
+            if len(region_lum_values) == 0:
+                return np.zeros_like(region_mask)
+
+            lum_min = np.percentile(region_lum_values, lum_range[0] * 100)
+            lum_max = np.percentile(region_lum_values, lum_range[1] * 100)
+
+            return region_mask & (self.luminosity >= lum_min) & (self.luminosity <= lum_max)
+
+        elif mask_method in ["spatial_back", "spatial_mid", "spatial_front"]:
+            # Back-to-front using luminosity as depth proxy
+            # Back = darkest (furthest), Front = brightest (closest)
+            return self._create_depth_mask(region_mask, mask_method, mask_params)
+
+        elif mask_method in ["spatial_top", "spatial_bottom", "spatial_middle"]:
+            # Vertical position masking
+            return self._create_vertical_mask(region_mask, mask_method, mask_params)
+
+        elif mask_method in ["spatial_left", "spatial_right"]:
+            # Horizontal position masking
+            return self._create_horizontal_mask(region_mask, mask_method, mask_params)
+
+        else:
+            # Default to full region
+            return region_mask.copy()
+
+    def _create_depth_mask(
+        self,
+        region_mask: np.ndarray,
+        method: str,
+        params: Dict
+    ) -> np.ndarray:
+        """
+        Create back-to-front depth mask using luminosity as depth proxy.
+        Darker = further back, Brighter = closer to front.
+        """
+        region_lum = self.luminosity[region_mask]
+        if len(region_lum) == 0:
+            return np.zeros_like(region_mask)
+
+        lum_min, lum_max = np.min(region_lum), np.max(region_lum)
+        lum_range = lum_max - lum_min
+
+        if lum_range < 0.01:
+            # Flat luminosity - return full mask for back, empty for others
+            return region_mask.copy() if method == "spatial_back" else np.zeros_like(region_mask)
+
+        if method == "spatial_back":
+            # Darkest third = back
+            depth = params.get("depth", 0.33)
+            threshold = lum_min + lum_range * depth
+            return region_mask & (self.luminosity <= threshold)
+
+        elif method == "spatial_mid":
+            # Middle third
+            depth_range = params.get("depth", (0.33, 0.66))
+            low_thresh = lum_min + lum_range * depth_range[0]
+            high_thresh = lum_min + lum_range * depth_range[1]
+            return region_mask & (self.luminosity > low_thresh) & (self.luminosity <= high_thresh)
+
+        elif method == "spatial_front":
+            # Brightest third = front
+            depth = params.get("depth", 0.66)
+            threshold = lum_min + lum_range * depth
+            return region_mask & (self.luminosity > threshold)
+
+        return region_mask.copy()
+
+    def _create_vertical_mask(
+        self,
+        region_mask: np.ndarray,
+        method: str,
+        params: Dict
+    ) -> np.ndarray:
+        """
+        Create vertical position mask (top/middle/bottom of region).
+        Useful for grass, sky, water.
+        """
+        # Find bounding box of region
+        rows = np.any(region_mask, axis=1)
+        if not np.any(rows):
+            return np.zeros_like(region_mask)
+
+        row_indices = np.where(rows)[0]
+        top_row, bottom_row = row_indices[0], row_indices[-1]
+        height = bottom_row - top_row + 1
+
+        result = np.zeros_like(region_mask)
+        portion = params.get("portion", 0.33)
+
+        if method == "spatial_top":
+            # Top portion (distant for grass, upper sky)
+            cutoff = top_row + int(height * portion)
+            result[:cutoff, :] = region_mask[:cutoff, :]
+
+        elif method == "spatial_bottom":
+            # Bottom portion (foreground for grass)
+            cutoff = bottom_row - int(height * portion)
+            result[cutoff:, :] = region_mask[cutoff:, :]
+
+        elif method == "spatial_middle":
+            # Middle portion
+            if isinstance(portion, tuple):
+                top_p, bottom_p = portion
+            else:
+                top_p, bottom_p = 0.33, 0.66
+            top_cutoff = top_row + int(height * top_p)
+            bottom_cutoff = top_row + int(height * bottom_p)
+            result[top_cutoff:bottom_cutoff, :] = region_mask[top_cutoff:bottom_cutoff, :]
+
+        return result
+
+    def _create_horizontal_mask(
+        self,
+        region_mask: np.ndarray,
+        method: str,
+        params: Dict
+    ) -> np.ndarray:
+        """
+        Create horizontal position mask (left/right of region).
+        Useful for mountains, buildings with side lighting.
+        """
+        # Find bounding box of region
+        cols = np.any(region_mask, axis=0)
+        if not np.any(cols):
+            return np.zeros_like(region_mask)
+
+        col_indices = np.where(cols)[0]
+        left_col, right_col = col_indices[0], col_indices[-1]
+        width = right_col - left_col + 1
+
+        result = np.zeros_like(region_mask)
+        portion = params.get("portion", 0.5)
+
+        if method == "spatial_left":
+            cutoff = left_col + int(width * portion)
+            result[:, :cutoff] = region_mask[:, :cutoff]
+
+        elif method == "spatial_right":
+            cutoff = right_col - int(width * portion)
+            result[:, cutoff:] = region_mask[:, cutoff:]
+
+        return result
 
     def _generate_bob_ross_instructions(self):
         """Generate Bob Ross style instructions for each layer and substep."""
@@ -657,20 +820,40 @@ class YOLOBobRossPaint:
             json.dump(guide, f, indent=2)
         print("  painting_guide.json")
 
-        # Scene analysis
+        # Scene analysis with context
         analysis = {
-            "method": "yolo_bob_ross",
+            "method": "yolo_bob_ross_context_aware",
+            "scene_context": {
+                "time_of_day": self.scene_context.time_of_day.value,
+                "weather": self.scene_context.weather.value,
+                "setting": self.scene_context.setting.value,
+                "lighting": self.scene_context.lighting.value,
+                "mood": self.scene_context.mood.value,
+                "light_direction": self.scene_context.light_direction,
+                "color_temperature": round(self.scene_context.color_temperature, 3),
+                "avg_luminosity": round(self.scene_context.avg_luminosity, 3),
+                "contrast": round(self.scene_context.contrast, 3),
+                "saturation": round(self.scene_context.saturation, 3),
+            },
             "num_regions": len(self.painting_layers),
             "total_substeps": sum(len(l.substeps) for l in self.painting_layers),
             "regions": [
                 {
                     "name": l.name,
+                    "subject_type": classify_subject(l.name).value,
                     "category": l.category,
                     "coverage": round(l.coverage, 4),
                     "confidence": round(l.confidence, 2),
                     "is_focal": l.is_focal,
                     "substeps": len(l.substeps),
-                    "techniques": [s.technique for s in l.substeps],
+                    "substep_details": [
+                        {
+                            "name": s.name,
+                            "technique": s.technique,
+                            "coverage": round(s.coverage, 3),
+                        }
+                        for s in l.substeps
+                    ],
                 }
                 for l in self.painting_layers
             ]
