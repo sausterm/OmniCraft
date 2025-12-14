@@ -145,8 +145,8 @@ class LayeringStrategyEngine:
         # Generate substeps
         substeps = strategy_fn(region_mask, image, is_focal)
 
-        # Adjust for context
-        substeps = self._adjust_for_context(substeps, subject_type)
+        # Adjust for context (pass is_focal for backlit handling)
+        substeps = self._adjust_for_context(substeps, subject_type, is_focal)
 
         return substeps
 
@@ -194,7 +194,8 @@ class LayeringStrategyEngine:
     def _adjust_for_context(
         self,
         substeps: List[LayerSubstep],
-        subject_type: SubjectType
+        subject_type: SubjectType,
+        is_focal: bool = False
     ) -> List[LayerSubstep]:
         """Adjust substeps based on scene context."""
 
@@ -222,9 +223,10 @@ class LayeringStrategyEngine:
             for step in substeps:
                 step.tips.append("Warm up your colors - golden light touches everything")
 
-        # Backlit adjustments
-        if self.context.lighting == LightingType.BACK_LIT:
-            # Reverse the typical order - silhouette first
+        # Backlit adjustments - ONLY for focal subjects that would be silhouettes
+        # Environment regions (sky, grass, etc.) should still paint dark-to-light
+        if self.context.lighting == LightingType.BACK_LIT and is_focal:
+            # Reverse the typical order - silhouette first for focal subjects
             substeps = sorted(substeps, key=lambda s: -s.priority)
             for step in substeps:
                 step.tips.append("Subject is backlit - establish the silhouette first")

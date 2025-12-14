@@ -24,6 +24,10 @@ from ..perception.scene_context import SceneContextAnalyzer, SceneContext, TimeO
 from ..perception.layering_strategies import (
     LayeringStrategyEngine, LayerSubstep, SubjectType, classify_subject
 )
+from ..perception.scene_analyzer import (
+    SceneAnalyzer, SceneAnalysisResult, LightingRole, ValueProgression, DepthLayer, SceneType
+)
+from ..perception.painting_planner import PaintingPlanner, PaintingSubstepPlan
 
 
 @dataclass
@@ -77,6 +81,11 @@ class SemanticPaintingLayer:
     technique: str = "layering"
     bob_ross_tips: List[str] = field(default_factory=list)
     instruction: str = ""
+
+    # Scene analysis info (from SceneAnalyzer)
+    lighting_role: Optional[str] = None  # emitter, silhouette, reflector, etc.
+    value_progression: Optional[str] = None  # dark_to_light, glow_then_edges, etc.
+    depth_layer: Optional[str] = None  # background, midground, foreground, focal
 
 
 class YOLOBobRossPaint:
@@ -151,6 +160,10 @@ class YOLOBobRossPaint:
         # Scene context (will be analyzed during process)
         self.scene_context: Optional[SceneContext] = None
         self.strategy_engine: Optional[LayeringStrategyEngine] = None
+
+        # Advanced scene analysis (from SceneAnalyzer)
+        self.scene_analysis: Optional[SceneAnalysisResult] = None
+        self.use_advanced_analysis: bool = True  # Use SceneAnalyzer + PaintingPlanner
 
         # Results
         self.semantic_regions: List[SemanticRegion] = []
@@ -273,6 +286,24 @@ class YOLOBobRossPaint:
         """Convert semantic regions to painting layers with context-aware substeps."""
         self.painting_layers = []
 
+        # Build regions dict for SceneAnalyzer
+        regions_dict = {region.name: region.mask for region in self.semantic_regions}
+        subject_types = {region.name: classify_subject(region.name) for region in self.semantic_regions}
+
+        # Run advanced scene analysis if enabled
+        if self.use_advanced_analysis and regions_dict:
+            print("  Running advanced scene analysis...")
+            analyzer = SceneAnalyzer(self.image, self.scene_context)
+            self.scene_analysis = analyzer.analyze(regions_dict)
+
+            print(f"    Scene type: {self.scene_analysis.scene_type.value}")
+            print(f"    Backlit: {self.scene_analysis.is_backlit}")
+            print(f"    Light sources: {len(self.scene_analysis.light_sources)}")
+
+            # Print lighting roles for each region
+            for name, analysis in self.scene_analysis.region_analyses.items():
+                print(f"    {name}: {analysis.lighting_role.value} -> {analysis.value_progression.value}")
+
         for i, region in enumerate(self.semantic_regions):
             # Extract color palette for this region
             region_pixels = self.image[region.mask]
@@ -288,6 +319,11 @@ class YOLOBobRossPaint:
             else:
                 palette = [region.dominant_color]
 
+            # Get scene analysis info for this region (if available)
+            region_analysis = None
+            if self.scene_analysis and region.name in self.scene_analysis.region_analyses:
+                region_analysis = self.scene_analysis.region_analyses[region.name]
+
             # Create painting layer
             layer = SemanticPaintingLayer(
                 id=region.id,
@@ -302,22 +338,33 @@ class YOLOBobRossPaint:
                 dominant_color=region.dominant_color,
                 avg_luminosity=region.avg_luminosity,
                 color_palette=palette,
+                # Add scene analysis info
+                lighting_role=region_analysis.lighting_role.value if region_analysis else None,
+                value_progression=region_analysis.value_progression.value if region_analysis else None,
+                depth_layer=region_analysis.depth_layer.value if region_analysis else None,
             )
 
-            # Classify subject type and get context-aware strategy
+            # Generate substeps using advanced planner or fallback to strategy engine
             subject_type = classify_subject(region.name)
-            strategy_substeps = self.strategy_engine.get_strategy(
-                subject_type,
-                region.mask,
-                self.image,
-                is_focal=region.is_focal
-            )
 
-            # Convert strategy substeps to painting substeps with actual masks
-            layer.substeps = self._create_substeps_from_strategy(layer, strategy_substeps)
+            if self.use_advanced_analysis and region_analysis:
+                # Use the advanced PaintingPlanner for context-aware substeps
+                layer.substeps = self._create_substeps_from_scene_analysis(
+                    layer, region_analysis, subject_type
+                )
+            else:
+                # Fallback to original LayeringStrategyEngine
+                strategy_substeps = self.strategy_engine.get_strategy(
+                    subject_type,
+                    region.mask,
+                    self.image,
+                    is_focal=region.is_focal
+                )
+                layer.substeps = self._create_substeps_from_strategy(layer, strategy_substeps)
 
             self.painting_layers.append(layer)
-            print(f"  {layer.name} ({subject_type.value}): {len(layer.substeps)} substeps")
+            role_info = f" [{layer.lighting_role}]" if layer.lighting_role else ""
+            print(f"  {layer.name} ({subject_type.value}){role_info}: {len(layer.substeps)} substeps")
 
     def _create_substeps_from_strategy(
         self,
@@ -333,8 +380,13 @@ class YOLOBobRossPaint:
         - "spatial_top", "spatial_bottom": Vertical position masking (for grass, sky)
         - "spatial_left", "spatial_right": Horizontal position masking
         - "full": Entire region
+
+        Ensures ALL pixels in the region are captured (no gaps).
         """
         substeps = []
+
+        # Track which pixels have been assigned to ensure full coverage
+        assigned_pixels = np.zeros_like(layer.mask, dtype=bool)
 
         for i, strategy_step in enumerate(strategy_substeps):
             # Generate mask based on mask_method
@@ -346,6 +398,9 @@ class YOLOBobRossPaint:
 
             if np.sum(sub_mask) == 0:
                 continue
+
+            # Track assigned pixels
+            assigned_pixels |= sub_mask
 
             # Get properties for this substep mask
             sub_pixels = self.image[sub_mask]
@@ -372,7 +427,402 @@ class YOLOBobRossPaint:
             )
             substeps.append(substep)
 
+        # CRITICAL: Capture any unassigned pixels and add them to the appropriate substep
+        unassigned = layer.mask & ~assigned_pixels
+        if np.sum(unassigned) > 0:
+            self._distribute_unassigned_pixels(substeps, unassigned, layer)
+
         return substeps
+
+    def _create_substeps_from_scene_analysis(
+        self,
+        layer: SemanticPaintingLayer,
+        region_analysis,  # RegionAnalysis from scene_analyzer
+        subject_type: SubjectType
+    ) -> List[PaintingSubstep]:
+        """
+        Create substeps using advanced scene analysis.
+
+        Uses the region's lighting role and value progression to determine:
+        - Correct order of values (dark-to-light vs light-to-dark vs glow-then-edges)
+        - Appropriate techniques and tips based on lighting context
+
+        Ensures ALL pixels in the region are captured (no gaps).
+        """
+        from ..perception.scene_analyzer import ValueProgression, LightingRole
+
+        substeps = []
+        value_progression = region_analysis.value_progression
+        lighting_role = region_analysis.lighting_role
+        is_focal = layer.is_focal
+
+        # Get value ranges based on progression type
+        num_substeps = 5 if is_focal else 4
+        value_ranges = self._get_value_ranges_for_progression(value_progression, num_substeps)
+
+        # Get substep configurations based on progression and lighting role
+        configs = self._get_substep_configs_for_progression(
+            value_progression, lighting_role, subject_type, num_substeps
+        )
+
+        # Track which pixels have been assigned to ensure full coverage
+        assigned_pixels = np.zeros_like(layer.mask, dtype=bool)
+
+        for i, (value_range, config) in enumerate(zip(value_ranges, configs)):
+            # Generate mask for this value range
+            sub_mask = self._generate_mask_for_strategy(
+                layer.mask,
+                "luminosity",
+                {"range": value_range}
+            )
+
+            if np.sum(sub_mask) == 0:
+                continue
+
+            # Track assigned pixels
+            assigned_pixels |= sub_mask
+
+            # Get properties for this substep mask
+            sub_pixels = self.image[sub_mask]
+            sub_color = tuple(np.median(sub_pixels, axis=0).astype(int))
+            sub_lum_values = self.luminosity[sub_mask]
+            sub_lum = float(np.mean(sub_lum_values))
+            lum_range = (float(np.min(sub_lum_values)), float(np.max(sub_lum_values)))
+
+            # Generate instruction based on lighting context
+            instruction = self._generate_context_instruction(
+                layer.name, config, value_progression, lighting_role, i, num_substeps
+            )
+
+            # Generate tips based on lighting role
+            tips = self._generate_context_tips(config, lighting_role, region_analysis.depth_layer, i, num_substeps)
+
+            substep = PaintingSubstep(
+                id=f"{layer.id}_sub{i+1}",
+                name=f"{layer.name} - {config['name']}",
+                parent_region=layer.name,
+                substep_order=i + 1,
+                mask=sub_mask,
+                coverage=np.sum(sub_mask) / max(1, np.sum(layer.mask)),
+                luminosity_range=lum_range,
+                dominant_color=sub_color,
+                avg_luminosity=sub_lum,
+                technique=config['technique'],
+                brush_suggestion=config['brush'],
+                stroke_direction=config['strokes'],
+                tips=tips,
+                instruction=instruction,
+            )
+            substeps.append(substep)
+
+        # CRITICAL: Capture any unassigned pixels and add them to the appropriate substep
+        unassigned = layer.mask & ~assigned_pixels
+        if np.sum(unassigned) > 0:
+            self._distribute_unassigned_pixels(substeps, unassigned, layer)
+
+        return substeps
+
+    def _distribute_unassigned_pixels(
+        self,
+        substeps: List[PaintingSubstep],
+        unassigned: np.ndarray,
+        layer: SemanticPaintingLayer
+    ):
+        """
+        Distribute unassigned pixels to the most appropriate existing substep
+        based on their luminosity values.
+        """
+        if not substeps or np.sum(unassigned) == 0:
+            return
+
+        # Get luminosity of unassigned pixels
+        unassigned_lum = self.luminosity[unassigned]
+
+        # For each unassigned pixel, find the substep with the closest luminosity range
+        unassigned_coords = np.where(unassigned)
+
+        for idx in range(len(unassigned_coords[0])):
+            y, x = unassigned_coords[0][idx], unassigned_coords[1][idx]
+            pixel_lum = self.luminosity[y, x]
+
+            # Find best matching substep based on luminosity range
+            best_substep = None
+            best_distance = float('inf')
+
+            for substep in substeps:
+                lum_min, lum_max = substep.luminosity_range
+                # Distance is 0 if within range, otherwise distance to nearest edge
+                if lum_min <= pixel_lum <= lum_max:
+                    distance = 0
+                else:
+                    distance = min(abs(pixel_lum - lum_min), abs(pixel_lum - lum_max))
+
+                if distance < best_distance:
+                    best_distance = distance
+                    best_substep = substep
+
+            # Add pixel to best matching substep
+            if best_substep is not None:
+                best_substep.mask[y, x] = True
+
+        # Update coverage for all substeps
+        total_region_pixels = max(1, np.sum(layer.mask))
+        for substep in substeps:
+            substep.coverage = np.sum(substep.mask) / total_region_pixels
+
+    def _get_value_ranges_for_progression(
+        self,
+        progression,  # ValueProgression enum
+        num_substeps: int
+    ) -> List[Tuple[float, float]]:
+        """Get value ranges for each substep based on progression type."""
+        from ..perception.scene_analyzer import ValueProgression
+
+        if progression == ValueProgression.DARK_TO_LIGHT:
+            # Standard: dark values first, light values last
+            ranges = []
+            step_size = 1.0 / num_substeps
+            for i in range(num_substeps):
+                start = i * step_size
+                end = min(1.0, (i + 1) * step_size + 0.1)  # 10% overlap
+                ranges.append((start, end))
+            return ranges
+
+        elif progression == ValueProgression.LIGHT_TO_DARK:
+            # Emission: light values first (glow), then darker edges
+            ranges = []
+            step_size = 1.0 / num_substeps
+            for i in range(num_substeps):
+                # Reverse order: start from bright
+                start = 1.0 - (i + 1) * step_size
+                end = 1.0 - i * step_size + 0.1
+                ranges.append((max(0, start), min(1.0, end)))
+            return ranges
+
+        elif progression == ValueProgression.GLOW_THEN_EDGES:
+            # Aurora/fire: bright core first, then mid, then dark edges
+            if num_substeps == 3:
+                return [(0.7, 1.0), (0.35, 0.75), (0.0, 0.4)]
+            elif num_substeps == 4:
+                return [(0.75, 1.0), (0.5, 0.8), (0.25, 0.55), (0.0, 0.3)]
+            elif num_substeps >= 5:
+                return [(0.8, 1.0), (0.6, 0.85), (0.4, 0.65), (0.2, 0.45), (0.0, 0.25)]
+            else:
+                return [(0.6, 1.0), (0.0, 0.65)]
+
+        elif progression == ValueProgression.SILHOUETTE_RIM:
+            # Silhouette: dark mass first (most of it), then rim highlights
+            if num_substeps == 3:
+                return [(0.0, 0.3), (0.25, 0.6), (0.7, 1.0)]  # Dark, mid, rim
+            elif num_substeps == 4:
+                return [(0.0, 0.25), (0.2, 0.45), (0.4, 0.7), (0.75, 1.0)]
+            elif num_substeps >= 5:
+                return [(0.0, 0.2), (0.15, 0.35), (0.3, 0.5), (0.45, 0.7), (0.75, 1.0)]
+            else:
+                return [(0.0, 0.5), (0.5, 1.0)]  # Simple: dark mass, then rim
+
+        elif progression == ValueProgression.REFLECTION:
+            # Reflections: base, then reflected image
+            if num_substeps >= 4:
+                return [(0.0, 0.3), (0.25, 0.5), (0.45, 0.75), (0.7, 1.0)]
+            elif num_substeps == 3:
+                return [(0.0, 0.35), (0.3, 0.65), (0.6, 1.0)]
+            else:
+                return [(0.0, 0.5), (0.4, 1.0)]
+
+        elif progression == ValueProgression.MUTED_FLAT:
+            # Shadow areas: compressed value range
+            if num_substeps >= 4:
+                return [(0.0, 0.25), (0.2, 0.4), (0.35, 0.55), (0.5, 0.7)]
+            elif num_substeps == 3:
+                return [(0.0, 0.35), (0.25, 0.55), (0.45, 0.7)]
+            else:
+                return [(0.0, 0.4), (0.3, 0.6)]
+
+        # Default fallback to dark-to-light
+        return self._get_value_ranges_for_progression(ValueProgression.DARK_TO_LIGHT, num_substeps)
+
+    def _get_substep_configs_for_progression(
+        self,
+        progression,  # ValueProgression enum
+        lighting_role,  # LightingRole enum
+        subject_type: SubjectType,
+        num_substeps: int
+    ) -> List[Dict]:
+        """Get configuration for each substep based on progression and lighting."""
+        from ..perception.scene_analyzer import ValueProgression, LightingRole
+
+        if progression == ValueProgression.LIGHT_TO_DARK:
+            return self._configs_light_to_dark(num_substeps)
+        elif progression == ValueProgression.GLOW_THEN_EDGES:
+            return self._configs_glow_then_edges(num_substeps)
+        elif progression == ValueProgression.SILHOUETTE_RIM:
+            return self._configs_silhouette_rim(num_substeps)
+        elif progression == ValueProgression.REFLECTION:
+            return self._configs_reflection(num_substeps)
+        elif progression == ValueProgression.MUTED_FLAT:
+            return self._configs_muted_flat(num_substeps)
+        else:  # DARK_TO_LIGHT (standard)
+            return self._configs_dark_to_light(num_substeps)
+
+    def _configs_dark_to_light(self, n: int) -> List[Dict]:
+        """Standard dark-to-light substep configs."""
+        configs = [
+            {'name': 'Dark Values', 'technique': 'blocking', 'brush': '1-inch brush', 'strokes': 'establish shadows'},
+            {'name': 'Shadow Mid-tones', 'technique': 'layering', 'brush': '1-inch brush', 'strokes': 'build form'},
+            {'name': 'Light Mid-tones', 'technique': 'layering', 'brush': 'filbert', 'strokes': 'blend values'},
+            {'name': 'Light Values', 'technique': 'blending', 'brush': 'fan brush', 'strokes': 'soft transitions'},
+            {'name': 'Highlights', 'technique': 'highlighting', 'brush': 'script liner', 'strokes': 'sparingly'},
+        ]
+        return configs[:n]
+
+    def _configs_light_to_dark(self, n: int) -> List[Dict]:
+        """Light-to-dark substep configs (for emitters like sky/aurora)."""
+        configs = [
+            {'name': 'Core Glow', 'technique': 'blocking', 'brush': '2-inch brush', 'strokes': 'soft coverage'},
+            {'name': 'Light Falloff', 'technique': 'layering', 'brush': '2-inch brush', 'strokes': 'blend outward'},
+            {'name': 'Mid Values', 'technique': 'layering', 'brush': '1-inch brush', 'strokes': 'transition zones'},
+            {'name': 'Dark Transition', 'technique': 'blending', 'brush': 'fan brush', 'strokes': 'feather edges'},
+            {'name': 'Edge Definition', 'technique': 'detailing', 'brush': 'filbert', 'strokes': 'crisp where needed'},
+        ]
+        return configs[:n]
+
+    def _configs_glow_then_edges(self, n: int) -> List[Dict]:
+        """Glow-then-edges configs (for aurora, fire, neon)."""
+        configs = [
+            {'name': 'Brightest Core', 'technique': 'blocking', 'brush': 'fan brush', 'strokes': 'soft center glow'},
+            {'name': 'Inner Glow', 'technique': 'layering', 'brush': 'fan brush', 'strokes': 'blend from core'},
+            {'name': 'Mid Glow', 'technique': 'layering', 'brush': '1-inch brush', 'strokes': 'feather outward'},
+            {'name': 'Outer Glow', 'technique': 'blending', 'brush': '1-inch brush', 'strokes': 'soft edges'},
+            {'name': 'Dark Boundary', 'technique': 'detailing', 'brush': 'filbert', 'strokes': 'define shape'},
+        ]
+        return configs[:n]
+
+    def _configs_silhouette_rim(self, n: int) -> List[Dict]:
+        """Silhouette with rim light configs (for backlit subjects)."""
+        configs = [
+            {'name': 'Core Shadow', 'technique': 'blocking', 'brush': '1-inch brush', 'strokes': 'establish mass'},
+            {'name': 'Shadow Variation', 'technique': 'layering', 'brush': 'filbert', 'strokes': 'subtle form'},
+            {'name': 'Edge Transition', 'technique': 'layering', 'brush': 'fan brush', 'strokes': 'soft edges'},
+            {'name': 'Rim Light', 'technique': 'highlighting', 'brush': 'script liner', 'strokes': 'edge highlights'},
+            {'name': 'Bright Rim', 'technique': 'highlighting', 'brush': 'script liner', 'strokes': 'backlight glow'},
+        ]
+        return configs[:n]
+
+    def _configs_reflection(self, n: int) -> List[Dict]:
+        """Reflection configs (for water, glass, metal)."""
+        configs = [
+            {'name': 'Deep Base', 'technique': 'blocking', 'brush': '2-inch brush', 'strokes': 'horizontal coverage'},
+            {'name': 'Reflection Darks', 'technique': 'layering', 'brush': '1-inch brush', 'strokes': 'inverted image'},
+            {'name': 'Reflection Lights', 'technique': 'layering', 'brush': '1-inch brush', 'strokes': 'muted copy'},
+            {'name': 'Surface Texture', 'technique': 'blending', 'brush': 'fan brush', 'strokes': 'horizontal ripples'},
+            {'name': 'Sparkle', 'technique': 'highlighting', 'brush': 'palette knife', 'strokes': 'broken horizontal'},
+        ]
+        return configs[:n]
+
+    def _configs_muted_flat(self, n: int) -> List[Dict]:
+        """Muted/flat configs (for shadow areas)."""
+        configs = [
+            {'name': 'Shadow Core', 'technique': 'blocking', 'brush': '1-inch brush', 'strokes': 'soft coverage'},
+            {'name': 'Shadow Variation', 'technique': 'layering', 'brush': 'filbert', 'strokes': 'subtle changes'},
+            {'name': 'Shadow Mid', 'technique': 'blending', 'brush': 'fan brush', 'strokes': 'soft transitions'},
+            {'name': 'Shadow Edge', 'technique': 'blending', 'brush': 'fan brush', 'strokes': 'blend to light'},
+        ]
+        return configs[:n]
+
+    def _generate_context_instruction(
+        self,
+        region_name: str,
+        config: Dict,
+        progression,  # ValueProgression
+        lighting_role,  # LightingRole
+        step_index: int,
+        total_steps: int
+    ) -> str:
+        """Generate painting instruction based on lighting context."""
+        from ..perception.scene_analyzer import ValueProgression, LightingRole
+
+        if step_index == 0:
+            # First step instructions
+            if progression == ValueProgression.LIGHT_TO_DARK:
+                return f"Start with the brightest values in {region_name}. This establishes the light source - the glow that everything else relates to."
+            elif progression == ValueProgression.GLOW_THEN_EDGES:
+                return f"Begin with the glowing core of {region_name}. Use soft strokes to establish where the light is strongest."
+            elif progression == ValueProgression.SILHOUETTE_RIM:
+                return f"Block in the dark mass of {region_name}. This is your silhouette shape against the light."
+            else:
+                return f"Start with the darkest values in {region_name}. Establish your shadows first - they create the foundation."
+
+        elif step_index == total_steps - 1:
+            # Last step instructions
+            if lighting_role == LightingRole.SILHOUETTE:
+                return f"Add rim lighting to {region_name}. These edge highlights show the backlight wrapping around the form."
+            elif lighting_role == LightingRole.EMITTER:
+                return f"Define the edges of {region_name}. Keep them soft where the glow fades into darkness."
+            elif lighting_role == LightingRole.REFLECTOR:
+                return f"Add sparkle and surface highlights to {region_name}. Broken strokes suggest the reflective quality."
+            else:
+                return f"Add final highlights to {region_name}. Use sparingly - these are the brightest points where light directly hits."
+
+        else:
+            # Middle steps
+            return f"Build up the {config['name'].lower()} in {region_name}. Work {config['strokes']}."
+
+    def _generate_context_tips(
+        self,
+        config: Dict,
+        lighting_role,  # LightingRole
+        depth_layer,  # DepthLayer
+        step_index: int,
+        total_steps: int
+    ) -> List[str]:
+        """Generate tips based on lighting context."""
+        from ..perception.scene_analyzer import LightingRole, DepthLayer
+        import random
+
+        tips = []
+
+        # Lighting role specific tips
+        if lighting_role == LightingRole.EMITTER:
+            if step_index == 0:
+                tips.append("Establish the glow first - this is your light source")
+            tips.append("Keep edges soft where light fades")
+
+        elif lighting_role == LightingRole.SILHOUETTE:
+            if step_index == 0:
+                tips.append("Dark shapes against light - keep values low")
+            if step_index == total_steps - 1:
+                tips.append("Rim light is warm where backlight hits edges")
+
+        elif lighting_role == LightingRole.REFLECTOR:
+            tips.append("Reflections are darker and less saturated than source")
+            tips.append("Keep strokes horizontal for water")
+
+        elif lighting_role == LightingRole.SHADOW:
+            tips.append("Shadows have color - usually cool blues/purples")
+            tips.append("Keep contrast low in shadow areas")
+
+        elif lighting_role == LightingRole.RECEIVER_LIT:
+            tips.append("This area receives direct light - higher contrast")
+
+        # Depth layer tips
+        if depth_layer == DepthLayer.BACKGROUND:
+            tips.append("Less detail - atmospheric perspective softens distant elements")
+        elif depth_layer == DepthLayer.FOCAL:
+            tips.append("This is your focal point - give it the most attention")
+        elif depth_layer in [DepthLayer.FAR_MIDGROUND]:
+            tips.append("Medium detail - not too sharp, not too soft")
+
+        # Technique tips
+        if config['technique'] == 'blocking':
+            tips.append("Work quickly to cover the area - don't overwork")
+        elif config['technique'] == 'highlighting':
+            tips.append("Less is more - highlights are the finishing touch")
+
+        # Add encouragement
+        tips.append(random.choice(self.ENCOURAGEMENTS))
+
+        return tips[:4]  # Limit to 4 tips
 
     def _generate_mask_for_strategy(
         self,
@@ -431,6 +881,10 @@ class YOLOBobRossPaint:
         """
         Create back-to-front depth mask using luminosity as depth proxy.
         Darker = further back, Brighter = closer to front.
+
+        Uses PERCENTILE-based thresholds so each depth layer gets roughly
+        equal pixel counts, rather than VALUE-based thresholds which can
+        create uneven coverage when luminosity distribution is skewed.
         """
         region_lum = self.luminosity[region_mask]
         if len(region_lum) == 0:
@@ -444,22 +898,23 @@ class YOLOBobRossPaint:
             return region_mask.copy() if method == "spatial_back" else np.zeros_like(region_mask)
 
         if method == "spatial_back":
-            # Darkest third = back
+            # Darkest pixels (by percentile) = back
             depth = params.get("depth", 0.33)
-            threshold = lum_min + lum_range * depth
+            # Use percentile so we get ~33% of PIXELS, not 33% of value range
+            threshold = np.percentile(region_lum, depth * 100)
             return region_mask & (self.luminosity <= threshold)
 
         elif method == "spatial_mid":
-            # Middle third
+            # Middle pixels (by percentile)
             depth_range = params.get("depth", (0.33, 0.66))
-            low_thresh = lum_min + lum_range * depth_range[0]
-            high_thresh = lum_min + lum_range * depth_range[1]
+            low_thresh = np.percentile(region_lum, depth_range[0] * 100)
+            high_thresh = np.percentile(region_lum, depth_range[1] * 100)
             return region_mask & (self.luminosity > low_thresh) & (self.luminosity <= high_thresh)
 
         elif method == "spatial_front":
-            # Brightest third = front
+            # Brightest pixels (by percentile) = front
             depth = params.get("depth", 0.66)
-            threshold = lum_min + lum_range * depth
+            threshold = np.percentile(region_lum, depth * 100)
             return region_mask & (self.luminosity > threshold)
 
         return region_mask.copy()
@@ -473,38 +928,44 @@ class YOLOBobRossPaint:
         """
         Create vertical position mask (top/middle/bottom of region).
         Useful for grass, sky, water.
+
+        Uses CUMULATIVE PIXEL COUNT to find cutoff rows, ensuring each
+        portion gets roughly equal pixel counts regardless of region shape.
         """
-        # Find bounding box of region
-        rows = np.any(region_mask, axis=1)
-        if not np.any(rows):
+        total_pixels = np.sum(region_mask)
+        if total_pixels == 0:
             return np.zeros_like(region_mask)
 
-        row_indices = np.where(rows)[0]
-        top_row, bottom_row = row_indices[0], row_indices[-1]
-        height = bottom_row - top_row + 1
+        # Calculate cumulative pixel count by row (top to bottom)
+        pixels_per_row = np.sum(region_mask, axis=1)
+        cumulative_pixels = np.cumsum(pixels_per_row)
 
         result = np.zeros_like(region_mask)
         portion = params.get("portion", 0.33)
 
         if method == "spatial_top":
-            # Top portion (distant for grass, upper sky)
-            cutoff = top_row + int(height * portion)
-            result[:cutoff, :] = region_mask[:cutoff, :]
+            # Top portion - find row where we hit `portion` of total pixels
+            target_pixels = total_pixels * portion
+            cutoff_row = np.searchsorted(cumulative_pixels, target_pixels)
+            result[:cutoff_row + 1, :] = region_mask[:cutoff_row + 1, :]
 
         elif method == "spatial_bottom":
-            # Bottom portion (foreground for grass)
-            cutoff = bottom_row - int(height * portion)
-            result[cutoff:, :] = region_mask[cutoff:, :]
+            # Bottom portion - find row where remaining pixels = `portion` of total
+            target_pixels = total_pixels * (1 - portion)
+            cutoff_row = np.searchsorted(cumulative_pixels, target_pixels)
+            result[cutoff_row:, :] = region_mask[cutoff_row:, :]
 
         elif method == "spatial_middle":
-            # Middle portion
+            # Middle portion - between two percentile cutoffs
             if isinstance(portion, tuple):
                 top_p, bottom_p = portion
             else:
                 top_p, bottom_p = 0.33, 0.66
-            top_cutoff = top_row + int(height * top_p)
-            bottom_cutoff = top_row + int(height * bottom_p)
-            result[top_cutoff:bottom_cutoff, :] = region_mask[top_cutoff:bottom_cutoff, :]
+            top_target = total_pixels * top_p
+            bottom_target = total_pixels * bottom_p
+            top_row = np.searchsorted(cumulative_pixels, top_target)
+            bottom_row = np.searchsorted(cumulative_pixels, bottom_target)
+            result[top_row:bottom_row + 1, :] = region_mask[top_row:bottom_row + 1, :]
 
         return result
 
@@ -693,6 +1154,99 @@ class YOLOBobRossPaint:
 
         return saved_paths
 
+    def create_region_focused_images(self, output_dir: str) -> Dict[str, List[str]]:
+        """
+        Create region-focused step images that complete each region before moving to next.
+
+        For each semantic region:
+        1. region_progress: Shows just this region building up (all substeps)
+        2. region_in_context: Shows this region building up with rest of canvas dimmed
+        3. canvas_by_region: Full canvas view, completing one region at a time
+
+        This is an ALTERNATIVE view to the standard layer-by-layer approach.
+        Use when you want to focus on one subject/area at a time.
+
+        Returns dict with paths organized by region.
+        """
+        # Create output directories
+        region_progress_dir = os.path.join(output_dir, "region_progress")
+        region_context_dir = os.path.join(output_dir, "region_in_context")
+        canvas_by_region_dir = os.path.join(output_dir, "canvas_by_region")
+
+        os.makedirs(region_progress_dir, exist_ok=True)
+        os.makedirs(region_context_dir, exist_ok=True)
+        os.makedirs(canvas_by_region_dir, exist_ok=True)
+
+        saved_paths = {
+            "region_progress": [],
+            "region_in_context": [],
+            "canvas_by_region": []
+        }
+
+        # Create dimmed version for context views
+        dimmed_image = self._create_dimmed_image(self.image, dim_factor=0.35, desaturate=0.7)
+
+        # Canvas that builds up region by region
+        canvas = np.ones((self.h, self.w, 3), dtype=np.uint8) * 255
+        global_step = 0
+
+        for layer_idx, layer in enumerate(self.painting_layers):
+            # Create per-region subdirectory
+            region_safe_name = layer.name.replace(' ', '_').replace('-', '_')
+            region_subdir = os.path.join(region_progress_dir, f"{layer_idx+1:02d}_{region_safe_name}")
+            os.makedirs(region_subdir, exist_ok=True)
+
+            # Region builds up independently (isolated view of just this region)
+            region_canvas = np.ones((self.h, self.w, 3), dtype=np.uint8) * 255
+
+            # Context view: dimmed background + this region building up
+            # Start with canvas so far (completed previous regions)
+            context_base = canvas.copy()
+            # Dim the parts that aren't this region
+            other_regions_mask = np.ones((self.h, self.w), dtype=bool)
+            other_regions_mask[layer.mask] = False
+            context_base[other_regions_mask] = (context_base[other_regions_mask] * 0.5).astype(np.uint8)
+
+            for sub_idx, sub in enumerate(layer.substeps):
+                global_step += 1
+                sub_safe_name = sub.name.replace(' ', '_').replace('-', '_')
+
+                # 1. REGION PROGRESS - Just this region building up
+                region_canvas[sub.mask] = self.image[sub.mask]
+                region_path = os.path.join(region_subdir, f"step_{sub_idx+1:02d}_{sub_safe_name}.png")
+                cv2.imwrite(region_path, cv2.cvtColor(region_canvas, cv2.COLOR_RGB2BGR))
+                saved_paths["region_progress"].append(region_path)
+
+                # 2. REGION IN CONTEXT - This region building with rest dimmed
+                context_view = context_base.copy()
+                # Add the current substep progress to this region
+                context_view[sub.mask] = self.image[sub.mask]
+                context_path = os.path.join(region_context_dir,
+                    f"step_{global_step:02d}_{region_safe_name}_{sub_idx+1:02d}.png")
+                cv2.imwrite(context_path, cv2.cvtColor(context_view, cv2.COLOR_RGB2BGR))
+                saved_paths["region_in_context"].append(context_path)
+
+                # Update context base for next substep
+                context_base[sub.mask] = self.image[sub.mask]
+
+                # 3. CANVAS BY REGION - Full canvas, completing regions one at a time
+                canvas[sub.mask] = self.image[sub.mask]
+                canvas_path = os.path.join(canvas_by_region_dir,
+                    f"step_{global_step:02d}_{region_safe_name}_{sub_idx+1:02d}.png")
+                cv2.imwrite(canvas_path, cv2.cvtColor(canvas, cv2.COLOR_RGB2BGR))
+                saved_paths["canvas_by_region"].append(canvas_path)
+
+            # Save completed region
+            completed_path = os.path.join(region_subdir, "completed.png")
+            cv2.imwrite(completed_path, cv2.cvtColor(region_canvas, cv2.COLOR_RGB2BGR))
+
+        # Final complete canvas
+        final_path = os.path.join(canvas_by_region_dir, "final_complete.png")
+        cv2.imwrite(final_path, cv2.cvtColor(canvas, cv2.COLOR_RGB2BGR))
+        saved_paths["canvas_by_region"].append(final_path)
+
+        return saved_paths
+
     def _create_dimmed_image(
         self,
         image: np.ndarray,
@@ -878,6 +1432,10 @@ class YOLOBobRossPaint:
                 "bob_ross_intro": layer.instruction,
                 "tips": layer.bob_ross_tips,
                 "is_focal": layer.is_focal,
+                # Scene analysis info
+                "lighting_role": layer.lighting_role,
+                "value_progression": layer.value_progression,
+                "depth_layer": layer.depth_layer,
             })
 
             for sub in layer.substeps:
@@ -928,16 +1486,27 @@ class YOLOBobRossPaint:
         cv2.imwrite(ref_path, cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR))
         print("  colored_reference.png")
 
-        # Steps with three view types
+        # Steps with three view types (layer-by-layer progression)
         steps_dir = os.path.join(output_dir, "steps")
         step_paths = self.create_step_images(steps_dir)
         n_cumulative = len(step_paths["cumulative"])
         n_context = len(step_paths["context"])
         n_isolated = len(step_paths["isolated"])
-        print(f"  steps/")
+        print(f"  steps/ (layer-by-layer)")
         print(f"    cumulative/ - {n_cumulative} images (progressive build-up)")
         print(f"    context/    - {n_context} images (highlighted in full image)")
         print(f"    isolated/   - {n_isolated} images (region on white canvas)")
+
+        # Region-focused steps (complete each region before moving to next)
+        region_steps_dir = os.path.join(output_dir, "steps_by_region")
+        region_paths = self.create_region_focused_images(region_steps_dir)
+        n_progress = len(region_paths["region_progress"])
+        n_context_region = len(region_paths["region_in_context"])
+        n_canvas = len(region_paths["canvas_by_region"])
+        print(f"  steps_by_region/ (region-focused)")
+        print(f"    region_progress/   - {n_progress} images (each region isolated)")
+        print(f"    region_in_context/ - {n_context_region} images (region highlighted)")
+        print(f"    canvas_by_region/  - {n_canvas} images (full canvas, region by region)")
 
         # Overview
         self.create_progress_overview(output_dir)
@@ -975,6 +1544,10 @@ class YOLOBobRossPaint:
                     "coverage": round(l.coverage, 4),
                     "confidence": round(l.confidence, 2),
                     "is_focal": l.is_focal,
+                    # New: Scene analysis info
+                    "lighting_role": l.lighting_role,
+                    "value_progression": l.value_progression,
+                    "depth_layer": l.depth_layer,
                     "substeps": len(l.substeps),
                     "substep_details": [
                         {
@@ -988,6 +1561,26 @@ class YOLOBobRossPaint:
                 for l in self.painting_layers
             ]
         }
+
+        # Add advanced scene analysis if available
+        if self.scene_analysis:
+            analysis["advanced_scene_analysis"] = {
+                "scene_type": self.scene_analysis.scene_type.value,
+                "is_backlit": self.scene_analysis.is_backlit,
+                "primary_light_direction": list(self.scene_analysis.primary_light_direction),
+                "light_sources": [
+                    {
+                        "type": ls.type.value,
+                        "intensity": round(ls.intensity, 3),
+                        "color_temperature": round(ls.color_temperature, 3),
+                        "is_primary": ls.is_primary,
+                        "position": list(ls.position),
+                    }
+                    for ls in self.scene_analysis.light_sources
+                ],
+                "painting_order": self.scene_analysis.painting_order,
+                "notes": self.scene_analysis.notes,
+            }
         analysis_path = os.path.join(output_dir, "scene_analysis.json")
         with open(analysis_path, 'w') as f:
             json.dump(analysis, f, indent=2)

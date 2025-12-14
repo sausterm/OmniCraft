@@ -1,60 +1,41 @@
 """
-Artisan - Semantic-Aware Art Construction System
+Artisan - AI-Powered Paint-by-Numbers Generation System
 
-A comprehensive system for converting images into step-by-step art creation guides.
-Uses semantic understanding (SAM-based segmentation) and art principles to generate
-intelligent, pedagogically-sound lessons for any medium.
+A comprehensive system for converting images into step-by-step painting guides
+with semantic understanding, context-aware layering, and Bob Ross methodology.
+
+Quick Start (YOLO + Bob Ross - Recommended):
+    >>> from artisan.generators import YOLOBobRossPaint, process_image
+    >>>
+    >>> # Simple usage
+    >>> process_image("dog.jpg", output_dir="./output")
+    >>>
+    >>> # Advanced usage
+    >>> painter = YOLOBobRossPaint("dog.jpg", model_size="m", conf_threshold=0.2)
+    >>> painter.process()
+    >>> painter.save_all("./output")
+
+Features:
+    - YOLO semantic segmentation (dogs, cats, people, etc.)
+    - Scene context analysis (time of day, weather, lighting, mood)
+    - Subject-specific painting strategies (fur, foliage, skin, etc.)
+    - Spatial back-to-front layering (not just luminosity)
+    - Three output views per step: cumulative, context, isolated
+    - Bob Ross style instructions with brush/stroke suggestions
 
 Package Structure:
     artisan/
-    ├── core/           - Core data structures, constraints, art principles
-    ├── perception/     - Semantic segmentation, scene understanding
-    ├── planning/       - Lesson plan generation
-    ├── renderers/      - Medium-specific instruction rendering
-    ├── generators/     - Legacy kit and instruction generation
-    ├── analysis/       - Technique analysis and visualization
-    ├── optimization/   - Budget optimization
-    ├── mediums/        - Medium-specific implementations
+    ├── generators/     - Paint-by-numbers generators (YOLOBobRossPaint)
+    ├── perception/     - Scene analysis, YOLO segmentation, context detection
+    ├── core/           - Color matching, paint database, constraints
+    ├── api/            - FastAPI backend for web deployment
     └── cli/            - Command-line tools
 
-New Architecture (v4.0):
-    - Artisan: Main orchestrator for semantic-aware lesson generation
-    - ArtConstraints: User-defined parameters (image, medium, style, skill)
-    - SemanticSegmenter: SAM-based image understanding
-    - LessonPlanGenerator: Creates pedagogically-sound lesson plans
-    - InstructionRenderer: Medium-specific detailed instructions
-
-Quick Start (New):
-    >>> from artisan import Artisan, ArtConstraints
-    >>>
-    >>> # Create artisan and generate lesson
-    >>> artisan = Artisan()
-    >>> constraints = ArtConstraints.from_simple("dog.jpg", medium="acrylic")
-    >>> lesson = artisan.create_lesson(constraints, output_dir="./output")
-    >>>
-    >>> # Or use convenience function
-    >>> from artisan import create_lesson
-    >>> lesson = create_lesson("portrait.jpg", medium="oil", style="realism")
-
-Legacy Quick Start:
-    >>> from artisan import PaintByNumbers, PaintKitGenerator
-    >>>
-    >>> # Simple paint-by-numbers
-    >>> pbn = PaintByNumbers('image.jpg', n_colors=15)
-    >>> pbn.process_all('output/')
-
-CLI Usage:
-    # New lesson generator
-    python -m artisan.cli.lesson dog.jpg --medium acrylic --style painterly
-
-    # Legacy generator
-    python artisan/cli/generate.py aurora_maria kit 15 16x20 75
-
 Author: Artisan Team
-Version: 4.0.0
+Version: 5.0.0
 """
 
-__version__ = "4.0.0"
+__version__ = "5.0.0"
 __author__ = "Artisan Team"
 
 # New Architecture - Semantic-Aware Art Construction
@@ -87,11 +68,24 @@ from .core.paint_database import (
     PaintType,
 )
 
-# Generators
+# Generators - Primary (YOLO + Bob Ross)
+from .generators.yolo_bob_ross_paint import (
+    YOLOBobRossPaint,
+    SemanticPaintingLayer,
+    PaintingSubstep,
+    process_image,
+)
+
+# Generators - Legacy
 from .generators.paint_kit_generator import PaintKitGenerator, CANVAS_SIZES, PaintKit
 from .generators.instruction_generator import UnifiedInstructionGenerator, InstructionLevel
 from .generators.bob_ross import BobRossGenerator, PaintingStep, BrushType, StrokeMotion
 from .generators.smart_paint_by_numbers import SmartPaintByNumbers
+
+# Perception - YOLO + Context
+from .perception.yolo_segmentation import YOLOSemanticSegmenter, SemanticRegion, YOLO_AVAILABLE
+from .perception.scene_context import SceneContextAnalyzer, SceneContext, TimeOfDay, Weather, analyze_scene
+from .perception.layering_strategies import LayeringStrategyEngine, SubjectType
 
 # Analysis
 from .analysis.technique_analyzer import TechniqueAnalyzer, Technique, ImageAnalysis
@@ -119,7 +113,22 @@ from .mediums import (
 from .mediums.acrylic import AcrylicMedium, BrushType, StrokeMotion
 
 __all__ = [
-    # New Architecture
+    # Primary - YOLO + Bob Ross (Recommended)
+    "YOLOBobRossPaint",
+    "SemanticPaintingLayer",
+    "PaintingSubstep",
+    "process_image",
+    "YOLOSemanticSegmenter",
+    "SemanticRegion",
+    "YOLO_AVAILABLE",
+    "SceneContextAnalyzer",
+    "SceneContext",
+    "TimeOfDay",
+    "Weather",
+    "analyze_scene",
+    "LayeringStrategyEngine",
+    "SubjectType",
+    # Legacy Architecture
     "Artisan",
     "create_lesson",
     "ArtConstraints",

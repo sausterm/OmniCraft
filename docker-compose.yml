@@ -1,0 +1,73 @@
+# Artisan Paint-by-Numbers - Local Development Stack
+# Run with: docker-compose up -d
+
+version: '3.8'
+
+services:
+  # FastAPI Backend
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=true
+      - ENVIRONMENT=development
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/artisan
+      - REDIS_URL=redis://redis:6379/0
+      - CORS_ORIGINS=["http://localhost:3000","http://127.0.0.1:3000"]
+    volumes:
+      - ./artisan:/app/artisan
+      - uploads:/app/artisan/api/uploads
+      - outputs:/app/artisan/api/outputs
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=artisan
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  # Redis (for Celery)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # Celery Worker (for async processing)
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A artisan.api.tasks worker --loglevel=info
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/artisan
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./artisan:/app/artisan
+      - uploads:/app/artisan/api/uploads
+      - outputs:/app/artisan/api/outputs
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads:
+  outputs:
