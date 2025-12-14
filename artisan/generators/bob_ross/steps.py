@@ -4,7 +4,8 @@ from dataclasses import dataclass, field
 from typing import List, Tuple, Optional, Dict, Any
 import numpy as np
 
-from .constants import BrushType, StrokeMotion
+# Import from canonical location
+from ...core.types import BrushType, StrokeMotion, CanvasArea
 
 
 @dataclass
@@ -22,16 +23,6 @@ class PaintingStep:
     technique_tip: str
     encouragement: str
     duration_hint: str  # "30 seconds", "2-3 minutes", etc.
-
-
-@dataclass
-class CanvasArea:
-    """A specific region of the canvas"""
-    name: str                    # Human-readable: "upper-left", "center", etc.
-    bounds: Tuple[float, float, float, float]  # (y1, y2, x1, x2) as fractions 0-1
-    mask: Optional[np.ndarray] = None   # Boolean mask of exact pixels
-    coverage_percent: float = 0.0       # What % of total canvas this covers
-    centroid: Tuple[float, float] = (0.5, 0.5)  # (y, x) center point as fractions
 
 
 @dataclass

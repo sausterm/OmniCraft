@@ -6,7 +6,20 @@ from .paint_database import PAINT_DATABASE, get_paint, get_paints_by_brand, get_
 from .regions import RegionDetector, RegionDetectionConfig
 from .segmenter import ImageSegmenter, LayerDefinition, LayerStrategy, find_colors_in_layer
 
+# Shared types (canonical location)
+from .types import (
+    BrushType,
+    StrokeMotion,
+    CanvasArea,
+    TechniqueCategory,
+    PaintingTechnique,
+    MaterialType,
+    PAINT_NAMES,
+    ENCOURAGEMENTS,
+)
+
 __all__ = [
+    # Core classes
     "PaintByNumbers",
     "ColorMatcher",
     "ColorSolution",
@@ -22,4 +35,13 @@ __all__ = [
     "LayerDefinition",
     "LayerStrategy",
     "find_colors_in_layer",
+    # Shared types
+    "BrushType",
+    "StrokeMotion",
+    "CanvasArea",
+    "TechniqueCategory",
+    "PaintingTechnique",
+    "MaterialType",
+    "PAINT_NAMES",
+    "ENCOURAGEMENTS",
 ]

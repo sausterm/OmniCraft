@@ -10,22 +10,11 @@ Defines the core abstractions that all mediums must implement:
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from enum import Enum
 from typing import List, Tuple, Optional, Dict, Any
 import numpy as np
 
-
-class MaterialType(Enum):
-    """Types of materials used in different mediums."""
-    PAINT = "paint"
-    THREAD = "thread"
-    BRICK = "brick"
-    BEAD = "bead"
-    YARN = "yarn"
-    PENCIL = "pencil"
-    MARKER = "marker"
-    FABRIC = "fabric"
-    PAPER = "paper"
+# Import shared types from canonical location
+from ..core.types import MaterialType, CanvasArea
 
 
 @dataclass
@@ -52,29 +41,7 @@ class Material:
             self.color_hex = '#{:02x}{:02x}{:02x}'.format(*self.color_rgb)
 
 
-@dataclass
-class CanvasArea:
-    """
-    A specific region of the canvas/workspace.
-
-    Represents WHERE a material should be applied.
-    """
-    name: str                           # "upper-left", "center", "sky region"
-    bounds: Tuple[float, float, float, float]  # (y1, y2, x1, x2) as fractions 0-1
-    mask: Optional[np.ndarray] = None   # Boolean mask of exact pixels/cells
-    coverage_percent: float = 0.0       # What % of total canvas this covers
-    centroid: Tuple[float, float] = (0.5, 0.5)  # (y, x) center as fractions
-    semantic_label: str = ""            # "sky", "mountain", "water" (if available)
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to JSON-serializable dict (excludes mask)."""
-        return {
-            'name': self.name,
-            'bounds': list(self.bounds),
-            'coverage_percent': self.coverage_percent,
-            'centroid': list(self.centroid),
-            'semantic_label': self.semantic_label,
-        }
+# Note: CanvasArea is imported from core.types
 
 
 @dataclass
