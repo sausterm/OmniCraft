@@ -633,10 +633,32 @@ class YOLOBobRossPaint:
         tips.append(random.choice(self.ENCOURAGEMENTS))
         return tips
 
-    def create_step_images(self, output_dir: str) -> List[str]:
-        """Create step-by-step progress images."""
-        os.makedirs(output_dir, exist_ok=True)
-        saved_paths = []
+    def create_step_images(self, output_dir: str) -> Dict[str, List[str]]:
+        """
+        Create step-by-step progress images with three views per step:
+        1. Cumulative: Progressive build-up (existing behavior)
+        2. Context: Full image with current step highlighted, rest dimmed
+        3. Isolated: Just the current step's region on white canvas
+
+        Returns dict with paths for each view type.
+        """
+        # Create subdirectories for each view type
+        cumulative_dir = os.path.join(output_dir, "cumulative")
+        context_dir = os.path.join(output_dir, "context")
+        isolated_dir = os.path.join(output_dir, "isolated")
+
+        os.makedirs(cumulative_dir, exist_ok=True)
+        os.makedirs(context_dir, exist_ok=True)
+        os.makedirs(isolated_dir, exist_ok=True)
+
+        saved_paths = {
+            "cumulative": [],
+            "context": [],
+            "isolated": []
+        }
+
+        # Create dimmed version of full image for context view
+        dimmed_image = self._create_dimmed_image(self.image, dim_factor=0.35, desaturate=0.7)
 
         cumulative = np.ones((self.h, self.w, 3), dtype=np.uint8) * 255
         step_num = 0
@@ -644,19 +666,121 @@ class YOLOBobRossPaint:
         for layer in self.painting_layers:
             for sub in layer.substeps:
                 step_num += 1
-                cumulative[sub.mask] = self.image[sub.mask]
-
                 safe_name = sub.name.replace(' ', '_').replace('-', '_')
-                path = os.path.join(output_dir, f"step_{step_num:02d}_{safe_name}.png")
-                cv2.imwrite(path, cv2.cvtColor(cumulative, cv2.COLOR_RGB2BGR))
-                saved_paths.append(path)
 
-        # Final
-        final_path = os.path.join(output_dir, "final_complete.png")
+                # 1. CUMULATIVE VIEW - Progressive build-up
+                cumulative[sub.mask] = self.image[sub.mask]
+                cumulative_path = os.path.join(cumulative_dir, f"step_{step_num:02d}_{safe_name}.png")
+                cv2.imwrite(cumulative_path, cv2.cvtColor(cumulative, cv2.COLOR_RGB2BGR))
+                saved_paths["cumulative"].append(cumulative_path)
+
+                # 2. CONTEXT VIEW - Full image with current step highlighted
+                context_image = self._create_context_view(dimmed_image, sub.mask)
+                context_path = os.path.join(context_dir, f"step_{step_num:02d}_{safe_name}_context.png")
+                cv2.imwrite(context_path, cv2.cvtColor(context_image, cv2.COLOR_RGB2BGR))
+                saved_paths["context"].append(context_path)
+
+                # 3. ISOLATED VIEW - Just this step's region on white canvas
+                isolated_image = self._create_isolated_view(sub.mask)
+                isolated_path = os.path.join(isolated_dir, f"step_{step_num:02d}_{safe_name}_isolated.png")
+                cv2.imwrite(isolated_path, cv2.cvtColor(isolated_image, cv2.COLOR_RGB2BGR))
+                saved_paths["isolated"].append(isolated_path)
+
+        # Final cumulative
+        final_path = os.path.join(cumulative_dir, "final_complete.png")
         cv2.imwrite(final_path, cv2.cvtColor(cumulative, cv2.COLOR_RGB2BGR))
-        saved_paths.append(final_path)
+        saved_paths["cumulative"].append(final_path)
 
         return saved_paths
+
+    def _create_dimmed_image(
+        self,
+        image: np.ndarray,
+        dim_factor: float = 0.4,
+        desaturate: float = 0.6
+    ) -> np.ndarray:
+        """
+        Create a dimmed and desaturated version of the image.
+
+        Args:
+            image: RGB image
+            dim_factor: How much to dim (0=black, 1=original brightness)
+            desaturate: How much to desaturate (0=grayscale, 1=original saturation)
+
+        Returns:
+            Dimmed RGB image
+        """
+        # Convert to HSV for saturation control
+        hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV).astype(np.float32)
+
+        # Reduce saturation
+        hsv[:, :, 1] = hsv[:, :, 1] * desaturate
+
+        # Reduce value (brightness)
+        hsv[:, :, 2] = hsv[:, :, 2] * dim_factor
+
+        # Clip and convert back
+        hsv = np.clip(hsv, 0, 255).astype(np.uint8)
+        dimmed = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+
+        return dimmed
+
+    def _create_context_view(
+        self,
+        dimmed_image: np.ndarray,
+        highlight_mask: np.ndarray
+    ) -> np.ndarray:
+        """
+        Create context view: full image with highlighted region at full color,
+        rest of image dimmed/desaturated.
+
+        Args:
+            dimmed_image: Pre-computed dimmed version of the image
+            highlight_mask: Binary mask of region to highlight
+
+        Returns:
+            Context view RGB image
+        """
+        # Start with dimmed image
+        context = dimmed_image.copy()
+
+        # Overlay the highlighted region with original colors
+        context[highlight_mask] = self.image[highlight_mask]
+
+        # Optional: Add subtle border around highlighted region for clarity
+        # Find contours and draw a subtle outline
+        mask_uint8 = highlight_mask.astype(np.uint8) * 255
+        contours, _ = cv2.findContours(mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Draw a subtle white glow/outline around the region
+        if contours:
+            # Create a slightly dilated mask for the glow effect
+            kernel = np.ones((3, 3), np.uint8)
+            dilated = cv2.dilate(mask_uint8, kernel, iterations=2)
+            glow_ring = (dilated > 0) & ~highlight_mask
+
+            # Blend a subtle white glow
+            context[glow_ring] = (context[glow_ring] * 0.7 + np.array([255, 255, 255]) * 0.3).astype(np.uint8)
+
+        return context
+
+    def _create_isolated_view(self, mask: np.ndarray) -> np.ndarray:
+        """
+        Create isolated view: just the masked region on a white canvas.
+
+        Args:
+            mask: Binary mask of region to isolate
+
+        Returns:
+            Isolated view RGB image
+        """
+        # White canvas
+        isolated = np.ones((self.h, self.w, 3), dtype=np.uint8) * 255
+
+        # Copy only the masked region
+        isolated[mask] = self.image[mask]
+
+        return isolated
 
     def create_progress_overview(self, output_dir: str) -> str:
         """Create grid overview showing all painting steps."""
@@ -804,10 +928,16 @@ class YOLOBobRossPaint:
         cv2.imwrite(ref_path, cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR))
         print("  colored_reference.png")
 
-        # Steps
+        # Steps with three view types
         steps_dir = os.path.join(output_dir, "steps")
         step_paths = self.create_step_images(steps_dir)
-        print(f"  steps/ - {len(step_paths)} images")
+        n_cumulative = len(step_paths["cumulative"])
+        n_context = len(step_paths["context"])
+        n_isolated = len(step_paths["isolated"])
+        print(f"  steps/")
+        print(f"    cumulative/ - {n_cumulative} images (progressive build-up)")
+        print(f"    context/    - {n_context} images (highlighted in full image)")
+        print(f"    isolated/   - {n_isolated} images (region on white canvas)")
 
         # Overview
         self.create_progress_overview(output_dir)
