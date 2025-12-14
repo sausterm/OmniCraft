@@ -130,21 +130,40 @@ class YOLOBobRossPaint:
         "That's a nice touch right there.",
     ]
 
+    # Available painting styles
+    PAINT_STYLES = ["photo", "oil", "impressionist", "poster", "watercolor"]
+
     def __init__(
         self,
         image_path: str,
         model_size: str = "m",
         conf_threshold: float = 0.3,
         substeps_per_region: int = 4,  # Number of value substeps per semantic region
+        paint_style: str = "photo",  # photo, oil, impressionist, poster, watercolor
+        simplify: int = 0,  # 0=none, 1=light, 2=medium, 3=heavy detail reduction
     ):
         self.image_path = image_path
         self.model_size = model_size
         self.conf_threshold = conf_threshold
         self.substeps_per_region = substeps_per_region
+        self.paint_style = paint_style if paint_style in self.PAINT_STYLES else "photo"
+        self.simplify = max(0, min(3, simplify))  # Clamp to 0-3
 
-        # Load image
-        self.image = cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB)
-        self.h, self.w = self.image.shape[:2]
+        # Load original image
+        self.original_image = cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB)
+        self.h, self.w = self.original_image.shape[:2]
+
+        # Apply simplification first (reduces detail for cleaner YOLO detection)
+        if self.simplify > 0:
+            print(f"  Simplifying image (level {self.simplify})...")
+            self.image = self._simplify_image(self.original_image, self.simplify)
+        else:
+            self.image = self.original_image.copy()
+
+        # Apply painterly style transformation
+        if self.paint_style != "photo":
+            print(f"  Applying '{self.paint_style}' style...")
+            self.image = self._apply_paint_style(self.image, self.paint_style)
 
         # Precompute luminosity
         hsv = cv2.cvtColor(self.image, cv2.COLOR_RGB2HSV)
@@ -168,6 +187,171 @@ class YOLOBobRossPaint:
         # Results
         self.semantic_regions: List[SemanticRegion] = []
         self.painting_layers: List[SemanticPaintingLayer] = []
+
+    def _simplify_image(self, image: np.ndarray, level: int) -> np.ndarray:
+        """
+        Reduce image detail to help YOLO detect fewer, larger regions.
+
+        This is applied BEFORE paint styles and helps reduce hyperrealism
+        that causes too many small objects to be detected.
+
+        Levels:
+        - 1: Light - subtle smoothing, preserves most detail
+        - 2: Medium - noticeable smoothing, merges small details
+        - 3: Heavy - significant simplification, painterly base
+        """
+        result = image.copy()
+
+        if level >= 1:
+            # Light: Edge-preserving filter - smooths while keeping edges
+            result = cv2.edgePreservingFilter(result, flags=1, sigma_s=40, sigma_r=0.4)
+
+        if level >= 2:
+            # Medium: Add bilateral filter for more smoothing
+            result = cv2.bilateralFilter(result, d=9, sigmaColor=50, sigmaSpace=50)
+            # Light color quantization to merge similar colors
+            result = self._quantize_colors(result, n_colors=32)
+
+        if level >= 3:
+            # Heavy: More aggressive smoothing and quantization
+            result = cv2.bilateralFilter(result, d=11, sigmaColor=75, sigmaSpace=75)
+            result = cv2.edgePreservingFilter(result, flags=1, sigma_s=60, sigma_r=0.5)
+            result = self._quantize_colors(result, n_colors=20)
+
+        return result
+
+    def _apply_paint_style(self, image: np.ndarray, style: str) -> np.ndarray:
+        """
+        Apply painterly style transformation to the image.
+
+        Styles:
+        - oil: Rich colors, visible brush strokes, classic oil painting look
+        - impressionist: Soft edges, posterized colors, dreamy quality
+        - poster: Flat color areas with strong edges, paint-by-numbers look
+        - watercolor: Soft, transparent, with bleeding edges
+        """
+        if style == "oil":
+            return self._style_oil_paint(image)
+        elif style == "impressionist":
+            return self._style_impressionist(image)
+        elif style == "poster":
+            return self._style_poster(image)
+        elif style == "watercolor":
+            return self._style_watercolor(image)
+        else:
+            return image.copy()
+
+    def _style_oil_paint(self, image: np.ndarray) -> np.ndarray:
+        """
+        Oil painting effect: rich colors, visible brush strokes.
+        Uses bilateral filter for smoothing + edge enhancement.
+        """
+        # Strong bilateral filter for smooth color regions
+        smooth = cv2.bilateralFilter(image, d=9, sigmaColor=75, sigmaSpace=75)
+        smooth = cv2.bilateralFilter(smooth, d=9, sigmaColor=75, sigmaSpace=75)
+
+        # Enhance saturation for richer colors
+        hsv = cv2.cvtColor(smooth, cv2.COLOR_RGB2HSV).astype(np.float32)
+        hsv[:, :, 1] = np.clip(hsv[:, :, 1] * 1.2, 0, 255)  # Boost saturation
+        hsv[:, :, 2] = np.clip(hsv[:, :, 2] * 1.05, 0, 255)  # Slight brightness boost
+        smooth = cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2RGB)
+
+        # Quantize colors slightly for painterly effect
+        smooth = self._quantize_colors(smooth, n_colors=24)
+
+        # Add subtle edge darkening for depth
+        edges = cv2.Canny(cv2.cvtColor(image, cv2.COLOR_RGB2GRAY), 50, 150)
+        edges = cv2.dilate(edges, np.ones((2, 2), np.uint8), iterations=1)
+        edges = cv2.GaussianBlur(edges, (3, 3), 0)
+
+        # Darken edges slightly
+        result = smooth.astype(np.float32)
+        edge_mask = edges.astype(np.float32) / 255.0
+        result = result * (1 - edge_mask[:, :, np.newaxis] * 0.3)
+
+        return np.clip(result, 0, 255).astype(np.uint8)
+
+    def _style_impressionist(self, image: np.ndarray) -> np.ndarray:
+        """
+        Impressionist effect: soft, dreamy, with visible color patches.
+        """
+        # Use OpenCV stylization for base effect
+        stylized = cv2.stylization(image, sigma_s=60, sigma_r=0.45)
+
+        # Soften further with edge-preserving filter
+        soft = cv2.edgePreservingFilter(stylized, flags=1, sigma_s=60, sigma_r=0.4)
+
+        # Subtle color quantization
+        result = self._quantize_colors(soft, n_colors=20)
+
+        # Slight desaturation for dreamy quality
+        hsv = cv2.cvtColor(result, cv2.COLOR_RGB2HSV).astype(np.float32)
+        hsv[:, :, 1] = hsv[:, :, 1] * 0.9
+        result = cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2RGB)
+
+        return result
+
+    def _style_poster(self, image: np.ndarray) -> np.ndarray:
+        """
+        Poster/paint-by-numbers effect: flat color areas with defined edges.
+        """
+        # Strong color quantization
+        quantized = self._quantize_colors(image, n_colors=12)
+
+        # Bilateral filter for flat regions
+        flat = cv2.bilateralFilter(quantized, d=15, sigmaColor=100, sigmaSpace=100)
+
+        # Edge detection
+        gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        edges = cv2.Canny(gray, 80, 200)
+        edges = cv2.dilate(edges, np.ones((2, 2), np.uint8), iterations=1)
+
+        # Combine flat colors with dark edges
+        result = flat.copy()
+        result[edges > 0] = result[edges > 0] * 0.3  # Darken edges
+
+        return result.astype(np.uint8)
+
+    def _style_watercolor(self, image: np.ndarray) -> np.ndarray:
+        """
+        Watercolor effect: soft edges, transparent look, bleeding colors.
+        """
+        # Multiple passes of edge-preserving filter for soft effect
+        soft = cv2.edgePreservingFilter(image, flags=2, sigma_s=80, sigma_r=0.5)
+        soft = cv2.edgePreservingFilter(soft, flags=2, sigma_s=60, sigma_r=0.4)
+
+        # Slight color quantization
+        soft = self._quantize_colors(soft, n_colors=16)
+
+        # Reduce contrast slightly for transparent look
+        soft = soft.astype(np.float32)
+        mean = np.mean(soft)
+        soft = (soft - mean) * 0.85 + mean  # Reduce contrast
+
+        # Lighten overall for watercolor transparency
+        soft = soft * 0.95 + 255 * 0.05
+
+        # Add subtle paper texture effect (slight noise)
+        noise = np.random.normal(0, 3, soft.shape).astype(np.float32)
+        soft = soft + noise
+
+        return np.clip(soft, 0, 255).astype(np.uint8)
+
+    def _quantize_colors(self, image: np.ndarray, n_colors: int = 16) -> np.ndarray:
+        """Reduce image to n_colors using k-means clustering."""
+        from sklearn.cluster import MiniBatchKMeans
+
+        # Reshape for clustering
+        pixels = image.reshape(-1, 3).astype(np.float32)
+
+        # K-means clustering
+        kmeans = MiniBatchKMeans(n_clusters=n_colors, random_state=42, n_init=3)
+        labels = kmeans.fit_predict(pixels)
+        centers = kmeans.cluster_centers_
+
+        # Reconstruct image
+        quantized = centers[labels].reshape(image.shape)
+        return quantized.astype(np.uint8)
 
     def process(self) -> List[SemanticPaintingLayer]:
         """
@@ -1595,9 +1779,31 @@ def process_image(
     output_dir: str = None,
     model_size: str = "m",
     conf_threshold: float = 0.2,
-    substeps: int = 4
+    substeps: int = 4,
+    paint_style: str = "photo",  # photo, oil, impressionist, poster, watercolor
+    simplify: int = 0  # 0=none, 1=light, 2=medium, 3=heavy
 ) -> YOLOBobRossPaint:
-    """Main entry point."""
+    """
+    Main entry point.
+
+    Args:
+        image_path: Path to input image
+        output_dir: Output directory (auto-generated if None)
+        model_size: YOLO model size (n, s, m, l, x)
+        conf_threshold: YOLO confidence threshold
+        substeps: Number of value substeps per region
+        paint_style: Painting style effect to apply:
+            - photo: Original image (no effect)
+            - oil: Rich colors, visible brush strokes
+            - impressionist: Soft, dreamy, posterized colors
+            - poster: Flat colors with strong edges (paint-by-numbers look)
+            - watercolor: Soft, transparent, bleeding edges
+        simplify: Detail reduction level (0-3):
+            - 0: None (original detail)
+            - 1: Light (subtle smoothing)
+            - 2: Medium (merges small details)
+            - 3: Heavy (significant simplification)
+    """
     if output_dir is None:
         base = os.path.splitext(os.path.basename(image_path))[0]
         output_dir = f"output/{base}_yolo_bob_ross"
@@ -1606,7 +1812,9 @@ def process_image(
         image_path,
         model_size=model_size,
         conf_threshold=conf_threshold,
-        substeps_per_region=substeps
+        substeps_per_region=substeps,
+        paint_style=paint_style,
+        simplify=simplify
     )
     painter.process()
     painter.save_all(output_dir)
@@ -1618,10 +1826,21 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print("Usage: python yolo_bob_ross_paint.py <image_path> [output_dir]")
+        print("Usage: python yolo_bob_ross_paint.py <image_path> [output_dir] [--style=STYLE] [--simplify=LEVEL]")
+        print("Styles: photo (default), oil, impressionist, poster, watercolor")
+        print("Simplify: 0 (none), 1 (light), 2 (medium), 3 (heavy)")
         sys.exit(0)
 
     image_path = sys.argv[1]
-    output_dir = sys.argv[2] if len(sys.argv) > 2 else None
+    output_dir = sys.argv[2] if len(sys.argv) > 2 and not sys.argv[2].startswith("--") else None
 
-    process_image(image_path, output_dir)
+    # Parse arguments
+    paint_style = "photo"
+    simplify = 0
+    for arg in sys.argv:
+        if arg.startswith("--style="):
+            paint_style = arg.split("=")[1]
+        elif arg.startswith("--simplify="):
+            simplify = int(arg.split("=")[1])
+
+    process_image(image_path, output_dir, paint_style=paint_style, simplify=simplify)
