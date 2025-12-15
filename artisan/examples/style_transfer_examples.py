@@ -13,7 +13,7 @@ from PIL import Image
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from artisan.style_transfer.engines import ControlNetEngine
+from artisan.transfer.engines import ControlNetEngine
 
 
 def example_1_preset_style():

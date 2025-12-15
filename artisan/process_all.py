@@ -22,7 +22,7 @@ from pathlib import Path
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from artisan.generators.yolo_bob_ross_paint import YOLOBobRossPaint
+from artisan.paint.generators.yolo_bob_ross_paint import YOLOBobRossPaint
 
 
 def find_main_image(input_dir: Path) -> Path:

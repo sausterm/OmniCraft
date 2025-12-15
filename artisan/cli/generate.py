@@ -65,11 +65,11 @@ _artisan_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _project_dir = os.path.dirname(_artisan_dir)
 sys.path.insert(0, _project_dir)
 
-from artisan.generators.instruction_generator import UnifiedInstructionGenerator, InstructionLevel
-from artisan.generators.bob_ross import BobRossGenerator
-from artisan.generators.paint_kit_generator import PaintKitGenerator, CANVAS_SIZES
-from artisan.generators.smart_paint_by_numbers import SmartPaintByNumbers
-from artisan.optimization.budget_optimizer import BudgetOptimizer, BUDGET_TIERS
+from artisan.paint.generators.instruction_generator import UnifiedInstructionGenerator, InstructionLevel
+from artisan.paint.generators.bob_ross import BobRossGenerator
+from artisan.paint.generators.paint_kit_generator import PaintKitGenerator, CANVAS_SIZES
+from artisan.paint.generators.smart_paint_by_numbers import SmartPaintByNumbers
+from artisan.paint.optimization.budget_optimizer import BudgetOptimizer, BUDGET_TIERS
 
 
 # Level name mappings

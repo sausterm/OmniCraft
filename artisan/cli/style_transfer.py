@@ -31,7 +31,7 @@ from PIL import Image
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from artisan.style_transfer.engines import ControlNetEngine, ReplicateEngine, REPLICATE_AVAILABLE
+from artisan.transfer.engines import ControlNetEngine, ReplicateEngine, REPLICATE_AVAILABLE
 
 
 def load_prompt_from_file(filepath: str) -> str:
