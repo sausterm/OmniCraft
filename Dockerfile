@@ -18,12 +18,16 @@ RUN apt-get update && apt-get install -y \
     libsm6 \
     libxext6 \
     libxrender1 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
+
+# Install CPU-only PyTorch first (much smaller than full PyTorch)
+RUN pip install --upgrade pip && \
+    pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
 # Install Python dependencies
 COPY pyproject.toml ./
-RUN pip install --upgrade pip && \
-    pip install ".[api]"
+RUN pip install ".[api]"
 
 # Copy application code
 COPY artisan/ ./artisan/
