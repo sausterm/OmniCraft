@@ -38,6 +38,33 @@ export interface JobResults {
   };
 }
 
+// Raw API response format
+interface ApiProcessingResult {
+  job_id: string;
+  scene_context: {
+    time_of_day: string;
+    weather: string;
+    setting: string;
+    lighting: string;
+    mood: string;
+    light_direction: string;
+  };
+  regions: Array<{
+    name: string;
+    subject_type: string;
+    category: string;
+    coverage: number;
+    is_focal: boolean;
+    substeps: number;
+  }>;
+  total_substeps: number;
+  output_files: {
+    cumulative: number;
+    context: number;
+    isolated: number;
+  };
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -61,6 +88,7 @@ class ApiClient {
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true',
         ...options?.headers,
       },
     });
@@ -83,6 +111,9 @@ class ApiClient {
     const response = await fetch(`${API_BASE}/api/upload`, {
       method: 'POST',
       body: formData,
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+      },
     });
 
     if (!response.ok) {
@@ -121,14 +152,46 @@ class ApiClient {
    * Get job results after completion
    */
   async getResults(jobId: string): Promise<JobResults> {
-    return this.request<JobResults>(`/api/results/${jobId}`);
+    const apiResult = await this.request<ApiProcessingResult>(`/api/results/${jobId}`);
+
+    // Transform API response to frontend format
+    const generateUrls = (type: string, count: number): string[] => {
+      return Array.from({ length: count }, (_, i) =>
+        `${API_BASE}/api/image/${jobId}/${type}/${i}`
+      );
+    };
+
+    return {
+      job_id: apiResult.job_id,
+      status: 'completed',
+      total_steps: apiResult.total_substeps,
+      scene_analysis: {
+        time_of_day: apiResult.scene_context.time_of_day,
+        weather: apiResult.scene_context.weather,
+        setting: apiResult.scene_context.setting,
+        lighting_type: apiResult.scene_context.lighting,
+        mood: apiResult.scene_context.mood,
+      },
+      outputs: {
+        cumulative: generateUrls('cumulative', apiResult.output_files.cumulative || 0),
+        context: generateUrls('context', apiResult.output_files.context || 0),
+        isolated: generateUrls('isolated', apiResult.output_files.isolated || 0),
+      },
+    };
   }
 
   /**
    * Get available products for a job
    */
   async getProducts(jobId: string): Promise<Product[]> {
-    return this.request<Product[]>(`/api/products/${jobId}`);
+    const response = await this.request<{ job_id: string; products: Product[]; purchased: string[] }>(
+      `/api/products/${jobId}`
+    );
+    // Mark products as purchased based on the purchased array
+    return (response.products || []).map(p => ({
+      ...p,
+      purchased: response.purchased?.includes(p.id) || false,
+    }));
   }
 
   /**
