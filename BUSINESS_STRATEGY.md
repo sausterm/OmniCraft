@@ -9,53 +9,109 @@ OmniCraft transforms any image into professional paint-by-numbers kits with AI-p
 ## 1. Product Tiers & Pricing Strategy
 
 ### Pricing Philosophy
-- **Freemium model** to drive adoption
-- **Value-based pricing** tied to output quality and features
-- **Competitive positioning** below custom art services, above commodity apps
+- **Hybrid Credits Model** - Pay-per-use with optional subscription
+- **Matches user behavior** - Painting is project-based, not daily
+- **Low friction** - One-time purchase feels smaller than recurring
+- **Value-based** - Each output feels valuable, not disposable
 
-### Tier Structure
+### Why Credits > Pure Subscription
 
-| Tier | Price | Target User |
-|------|-------|-------------|
-| **Free** | $0 | Hobbyists, trial users |
-| **Creator** | $9.99/mo or $79/yr | Regular hobbyists, teachers |
-| **Pro** | $24.99/mo or $199/yr | Artists, content creators |
-| **Business** | $99/mo or $799/yr | Kit sellers, studios |
-| **Enterprise** | Custom | Large retailers, franchises |
+| Factor | Pure Subscription | Credits Model |
+|--------|------------------|---------------|
+| Matches painting frequency | No (sporadic use) | Yes |
+| User resentment | High (paying idle months) | Low |
+| Conversion rate | 3-5% | 8-12% |
+| Churn risk | High | N/A (no recurring) |
+| Acquisition friction | High | Low |
 
-### Feature Matrix
+**Key insight**: Most users paint 1-5 times per year. They resent paying monthly for something they use occasionally.
 
-| Feature | Free | Creator | Pro | Business |
-|---------|------|---------|-----|----------|
-| Images/month | 3 | 20 | Unlimited | Unlimited |
-| Max resolution | 1080p | 4K | 8K | 8K |
+### Pricing Structure
+
+```
+┌─────────────────────────────────────────────────────┐
+│  FREE TIER                                          │
+│  • 2 credits (lifetime, not monthly)                │
+│  • 1080p max resolution                             │
+│  • Basic paint matching (generic colors)            │
+│  • Watermarked outputs                              │
+└─────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────┐
+│  CREDIT PACKS (Pay-Per-Use) - Never expire          │
+│                                                     │
+│  Starter    •  3 credits  =  $4.99   ($1.66/each)  │
+│  Standard   •  6 credits  =  $9.99   ($1.67/each)  │
+│  Value      • 20 credits  = $24.99   ($1.25/each)  │
+│  Pro Pack   • 50 credits  = $49.99   ($1.00/each)  │
+└─────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────┐
+│  UNLIMITED PASS (For power users only)              │
+│  • $19.99/month - unlimited generations             │
+│  • Best for: teachers, kit sellers, creators        │
+│  • ~5-10% of paying users need this                 │
+└─────────────────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────┐
+│  BUSINESS API (Enterprise)                          │
+│  • $99/month base + $0.50/generation               │
+│  • White-label, bulk processing                     │
+│  • Custom paint database                            │
+│  • Dedicated support                                │
+└─────────────────────────────────────────────────────┘
+```
+
+### Credit Usage
+
+| Output Type | Credits | Description |
+|-------------|---------|-------------|
+| **Standard generation** | 1 | 1080p, all 3 views, basic paint matching |
+| **High-res (4K)** | 2 | Print-quality resolution |
+| **Ultra-res (8K)** | 3 | Professional/large canvas |
+| **+ Print-ready PDF** | +1 | Formatted for professional printing |
+| **+ Video tutorial** | +2 | Animated step-by-step guide |
+| **+ Premium paint matching** | +1 | 15+ brands with exact SKUs |
+| **+ Budget optimization** | +0 | Included free (differentiator) |
+
+### Feature Comparison
+
+| Feature | Free | Credit Packs | Unlimited | Business |
+|---------|------|--------------|-----------|----------|
+| Credits | 2 (lifetime) | As purchased | Unlimited | Unlimited |
+| Max resolution | 1080p | Up to 8K | 8K | 8K |
+| Watermark | Yes | No | No | No |
 | Bob Ross instructions | Basic | Full | Full | Full |
-| Paint brand matching | Generic | 5 brands | 15+ brands | Custom brands |
-| Budget optimization | - | Standard | Advanced | Custom |
-| Instruction levels | 2 | 4 | 4 | 4 |
-| View types | Cumulative only | All 3 | All 3 | All 3 |
-| Commercial license | - | Personal only | Yes | White-label |
-| API access | - | - | 1000 calls/mo | Unlimited |
-| Priority processing | - | - | Yes | Dedicated |
+| Paint brand matching | Generic | Standard | All brands | Custom |
+| View types | Cumulative | All 3 | All 3 | All 3 |
+| Commercial license | No | Yes | Yes | White-label |
+| API access | No | No | No | Yes |
 | Support | Community | Email | Priority | Dedicated |
-| Custom paint database | - | - | - | Yes |
-| Bulk processing | - | - | - | Yes |
-
-### One-Time Purchases (Add-ons)
-
-| Add-on | Price | Description |
-|--------|-------|-------------|
-| High-res pack | $4.99 | Single image at 8K resolution |
-| Print-ready PDF | $2.99 | Formatted for professional printing |
-| Physical kit design | $14.99 | Ready-to-manufacture package design |
-| Custom paint matching | $9.99 | Match to your specific paint collection |
-| Video tutorial export | $7.99 | Animated step-by-step video |
 
 ### Pricing Psychology
-- **$9.99** (not $10) for Creator - approachable for hobbyists
-- **$24.99** for Pro - positions as "serious" tool
-- **Annual discount** (33% off) encourages commitment
-- **3 free images** creates habit before paywall
+
+1. **$4.99 starter pack** - Impulse-buy friendly, "coffee money"
+2. **Credits never expire** - Removes pressure, builds trust
+3. **Volume discounts** - Rewards commitment (40% off at 50 credits)
+4. **Unlimited as premium** - Only for proven power users
+5. **Free tier limited but useful** - 2 complete projects to prove value
+
+### Comparable Products Using Credits
+
+| Product | Model | Price Range |
+|---------|-------|-------------|
+| Remove.bg | Credits | $1.99-$0.20/image |
+| Midjourney | GPU hours | $10-60/month |
+| Leonardo.ai | Tokens | $10-48/month |
+| Canva | Credits for premium | $12.99/month |
+
+### Revenue Mix Projection
+
+| Source | % of Revenue | Avg Transaction |
+|--------|--------------|-----------------|
+| Credit packs | 60% | $15 |
+| Unlimited subscriptions | 25% | $19.99/mo |
+| Business/API | 15% | $150/mo |
 
 ---
 
@@ -266,11 +322,11 @@ OmniCraft transforms any image into professional paint-by-numbers kits with AI-p
 | Metric | Target (Month 1) | Target (Month 6) |
 |--------|------------------|------------------|
 | Free signups | 1,000 | 10,000 |
-| Free → Paid conversion | 3% | 5% |
-| Monthly recurring revenue | $500 | $10,000 |
-| Customer acquisition cost | $15 | $10 |
-| Lifetime value | $50 | $75 |
-| Churn rate | 15% | 8% |
+| Free → Paid conversion | 8% | 12% |
+| Monthly revenue | $800 | $12,000 |
+| Customer acquisition cost | $12 | $8 |
+| Lifetime value | $35 | $55 |
+| Repeat purchase rate | 30% | 50% |
 
 ---
 
@@ -278,17 +334,20 @@ OmniCraft transforms any image into professional paint-by-numbers kits with AI-p
 
 ### Revenue Streams
 
-1. **Subscriptions** (80% of revenue)
-   - Recurring monthly/annual fees
-   - Predictable, scalable
+1. **Credit Packs** (60% of revenue)
+   - One-time purchases, no churn
+   - Higher conversion than subscription
+   - Repeat purchases from satisfied users
 
-2. **Add-ons** (10% of revenue)
-   - One-time purchases
-   - High margin, impulse buys
+2. **Unlimited Subscriptions** (25% of revenue)
+   - Power users: teachers, kit sellers
+   - Predictable recurring revenue
+   - ~5-10% of paying users
 
-3. **B2B/API** (10% of revenue)
+3. **Business/API** (15% of revenue)
    - Enterprise contracts
    - White-label licensing
+   - Per-generation fees
 
 ### Cost Structure
 
@@ -305,32 +364,59 @@ OmniCraft transforms any image into professional paint-by-numbers kits with AI-p
 ### Unit Economics
 
 ```
-Average subscription: $15/mo (blended Creator/Pro)
-Gross margin: 85% (after compute)
-CAC: $12 (paid) / $0 (organic)
-LTV: $90 (6-month avg retention)
-LTV:CAC ratio: 7.5x (excellent)
+Credit Pack Revenue Model:
+─────────────────────────────────────────────
+Average first purchase:     $9.99 (Standard pack)
+Repeat purchase rate:       45% (within 6 months)
+Average repeat purchase:    $18 (mix of Standard/Value)
+Customer lifetime value:    $9.99 + (0.45 × $18) = $18.09
+
+Unlimited Subscribers (~8% of paying users):
+─────────────────────────────────────────────
+Monthly subscription:       $19.99
+Average retention:          4 months
+Subscriber LTV:             $80
+
+Blended Metrics:
+─────────────────────────────────────────────
+Blended LTV:               $22 (weighted by user mix)
+Gross margin:              80% (after compute @ $0.40/gen)
+CAC (paid):                $10
+CAC (organic):             $0
+LTV:CAC ratio:             2.2x (paid) / ∞ (organic)
+Blended LTV:CAC:           4.4x (with 50% organic)
 ```
 
-### 12-Month Projection
+### 12-Month Projection (Credits Model)
 
-| Month | Users | Paid Users | MRR | Notes |
-|-------|-------|------------|-----|-------|
-| 1 | 500 | 15 | $150 | Soft launch |
-| 2 | 1,500 | 50 | $500 | Public launch |
-| 3 | 3,000 | 120 | $1,200 | PR boost |
-| 4 | 5,000 | 200 | $2,000 | Ads start |
-| 5 | 8,000 | 350 | $3,500 | Referral launch |
-| 6 | 12,000 | 550 | $5,500 | Plateau |
-| 7 | 15,000 | 700 | $7,000 | New features |
-| 8 | 18,000 | 900 | $9,000 | Mobile app |
-| 9 | 22,000 | 1,100 | $11,000 | B2B focus |
-| 10 | 27,000 | 1,400 | $14,000 | Scale ads |
-| 11 | 33,000 | 1,800 | $18,000 | Partnership |
-| 12 | 40,000 | 2,200 | $22,000 | Year 1 end |
+| Month | Users | Paying | Credits Rev | Subs Rev | Total | Notes |
+|-------|-------|--------|-------------|----------|-------|-------|
+| 1 | 500 | 40 | $400 | $0 | $400 | Soft launch |
+| 2 | 1,500 | 150 | $1,200 | $100 | $1,300 | Public launch |
+| 3 | 3,000 | 300 | $2,400 | $300 | $2,700 | PR boost |
+| 4 | 5,000 | 500 | $4,000 | $500 | $4,500 | Ads start |
+| 5 | 8,000 | 800 | $6,000 | $800 | $6,800 | Referral launch |
+| 6 | 12,000 | 1,200 | $8,500 | $1,200 | $9,700 | Growing |
+| 7 | 16,000 | 1,600 | $11,000 | $1,600 | $12,600 | New features |
+| 8 | 21,000 | 2,100 | $14,000 | $2,000 | $16,000 | Mobile app |
+| 9 | 27,000 | 2,700 | $17,500 | $2,500 | $20,000 | B2B starts |
+| 10 | 34,000 | 3,400 | $21,000 | $3,000 | $24,000 | Scale ads |
+| 11 | 42,000 | 4,200 | $25,000 | $4,000 | $29,000 | Partnership |
+| 12 | 50,000 | 5,000 | $30,000 | $5,000 | $35,000 | Year 1 end |
 
-**Year 1 Total Revenue: ~$94,000**
-**Year 1 Profit (70% margin): ~$66,000**
+**Year 1 Total Revenue: ~$162,000**
+**Year 1 Costs: ~$48,000**
+**Year 1 Profit (70% margin): ~$114,000**
+
+### Why Credits Model Performs Better
+
+| Metric | Subscription Model | Credits Model | Difference |
+|--------|-------------------|---------------|------------|
+| Conversion rate | 4% | 10% | +150% |
+| First purchase friction | High | Low | - |
+| Churn rate | 12%/mo | N/A | - |
+| Year 1 revenue | $94K | $162K | +72% |
+| Year 1 profit | $66K | $114K | +73% |
 
 ### Funding/Bootstrap Strategy
 
