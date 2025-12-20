@@ -3,10 +3,18 @@ Processing endpoint - start and monitor image processing.
 """
 
 import os
+import logging
 from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+)
 
 from ..config import settings
 from ..models.schemas import (
@@ -34,9 +42,13 @@ def run_processing(job_id: str, config: ProcessConfig):
 
     job = jobs_db.get(job_id)
     if not job:
+        logger.error(f"[{job_id}] Job not found in database")
         return
 
     try:
+        logger.info(f"[{job_id}] Starting processing job")
+        logger.info(f"[{job_id}] Config: model_size={config.model_size}, conf={config.conf_threshold}, substeps={config.substeps_per_region}")
+
         # Update status
         job["status"] = JobStatus.PROCESSING
         job["updated_at"] = datetime.utcnow()
@@ -44,13 +56,16 @@ def run_processing(job_id: str, config: ProcessConfig):
 
         # Get input path
         input_path = job["local_path"]
+        logger.info(f"[{job_id}] Input file: {input_path}")
 
         # Create output directory
         output_dir = f"artisan/api/outputs/{job_id}"
         os.makedirs(output_dir, exist_ok=True)
+        logger.info(f"[{job_id}] Output directory: {output_dir}")
 
         # Run processing
         job["progress"] = 20.0
+        logger.info(f"[{job_id}] Initializing YOLOBobRossPaint...")
 
         painter = YOLOBobRossPaint(
             input_path,
@@ -60,9 +75,11 @@ def run_processing(job_id: str, config: ProcessConfig):
         )
 
         job["progress"] = 40.0
+        logger.info(f"[{job_id}] Running scene analysis and segmentation...")
         painter.process()
 
         job["progress"] = 70.0
+        logger.info(f"[{job_id}] Generating step images and instructions...")
         painter.save_all(output_dir)
 
         job["progress"] = 90.0
@@ -100,6 +117,12 @@ def run_processing(job_id: str, config: ProcessConfig):
             "isolated": len(os.listdir(os.path.join(output_dir, "steps", "isolated"))),
         }
 
+        # Log output files
+        logger.info(f"[{job_id}] Generated {results['output_files']['cumulative']} cumulative images")
+        logger.info(f"[{job_id}] Generated {results['output_files']['context']} context images")
+        logger.info(f"[{job_id}] Generated {results['output_files']['isolated']} isolated images")
+        logger.info(f"[{job_id}] Total regions: {results['num_regions']}, Total substeps: {results['num_substeps']}")
+
         # Update job
         job["status"] = JobStatus.COMPLETED
         job["progress"] = 100.0
@@ -109,7 +132,10 @@ def run_processing(job_id: str, config: ProcessConfig):
         # Generate preview URL (low-res version of progress overview)
         job["preview_url"] = f"/api/preview/{job_id}"
 
+        logger.info(f"[{job_id}] Job completed successfully!")
+
     except Exception as e:
+        logger.error(f"[{job_id}] Job failed with error: {str(e)}", exc_info=True)
         job["status"] = JobStatus.FAILED
         job["error"] = str(e)
         job["updated_at"] = datetime.utcnow()

@@ -126,7 +126,7 @@ Examples:
 
     # Import artisan components
     try:
-        from artisan.artisan import Artisan
+        from artisan.orchestrator import Artisan
         from artisan.core.constraints import ArtConstraints, Medium, Style, SkillLevel
     except ImportError as e:
         print(f"Import error: {e}")

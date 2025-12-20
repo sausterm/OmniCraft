@@ -14,10 +14,18 @@ that varies based on WHAT it is and WHEN/WHERE the scene takes place.
 import os
 import cv2
 import numpy as np
+import logging
 from PIL import Image, ImageDraw, ImageFont
 import json
 from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass, field
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+)
 
 # Vision module imports (segmentation + analysis)
 from artisan.vision.segmentation.yolo_segmentation import YOLOSemanticSegmenter, SemanticRegion, YOLO_AVAILABLE
@@ -1291,6 +1299,8 @@ class YOLOBobRossPaint:
 
         Returns dict with paths for each view type.
         """
+        logger.info("Creating step images...")
+
         # Create subdirectories for each view type
         cumulative_dir = os.path.join(output_dir, "cumulative")
         context_dir = os.path.join(output_dir, "context")
@@ -1317,10 +1327,12 @@ class YOLOBobRossPaint:
         painted_mask = np.zeros((self.h, self.w), dtype=bool)  # Track what's been painted
         step_num = 0
 
+        total_substeps = sum(len(l.substeps) for l in self.painting_layers)
         for layer in self.painting_layers:
             for sub in layer.substeps:
                 step_num += 1
                 safe_name = sub.name.replace(' ', '_').replace('-', '_')
+                logger.info(f"  Step {step_num}/{total_substeps}: {sub.name} ({sub.technique})")
 
                 # 1. CUMULATIVE VIEW - Progressive build-up with optional blending
                 cumulative[sub.mask] = self.image[sub.mask]
@@ -1356,6 +1368,7 @@ class YOLOBobRossPaint:
         cv2.imwrite(final_path, cv2.cvtColor(cumulative, cv2.COLOR_RGB2BGR))
         saved_paths["cumulative"].append(final_path)
 
+        logger.info(f"Step images complete: {len(saved_paths['cumulative'])} cumulative, {len(saved_paths['context'])} context, {len(saved_paths['isolated'])} isolated")
         return saved_paths
 
     def _blend_painted_edges(
@@ -1765,6 +1778,7 @@ class YOLOBobRossPaint:
         """Save all outputs."""
         os.makedirs(output_dir, exist_ok=True)
 
+        logger.info(f"Saving outputs to {output_dir}/")
         print(f"\nSaving to {output_dir}/")
         print("-" * 50)
 
@@ -1800,10 +1814,12 @@ class YOLOBobRossPaint:
         print("  progress_overview.png")
 
         # Guide
+        logger.info("Generating painting instructions guide...")
         guide = self.create_layer_guide()
         guide_path = os.path.join(output_dir, "painting_guide.json")
         with open(guide_path, 'w') as f:
             json.dump(guide, f, indent=2)
+        logger.info(f"Painting guide generated with {len(guide)} steps")
         print("  painting_guide.json")
 
         # Scene analysis with context

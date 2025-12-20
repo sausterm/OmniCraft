@@ -326,6 +326,36 @@ matched_colors = pbn.process_all(output_dir='output')
 print(f"Created template with {len(matched_colors)} colors")
 ```
 
+## Web Application
+
+A web-based interface is available for uploading images and generating paint-by-numbers guides.
+
+### Quick Start
+
+```bash
+# Start backend (from artisan directory)
+PYTHONPATH=/path/to/OmniCraft CORS_ORIGINS='["*"]' \
+  ./venv/bin/python -m uvicorn api.main:app --host 0.0.0.0 --port 8000
+
+# Start frontend (from web directory)
+cd ../web
+npm install
+npm run dev
+```
+
+### Production Deployment
+
+See [DEPLOYMENT.md](../DEPLOYMENT.md) for full deployment instructions including:
+- Vercel frontend deployment
+- Self-hosted backend with ngrok tunnel
+- Environment configuration
+- Troubleshooting guide
+
+### Live Demo
+
+- **Frontend**: https://omnicraft-psi.vercel.app
+- **API Health**: https://noncommunistic-biogeographical-freeman.ngrok-free.dev/health
+
 ## License
 
 MIT License - Use this code for your paint-by-numbers business!
