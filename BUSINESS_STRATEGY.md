@@ -155,7 +155,211 @@ OmniCraft transforms any image into professional paint-by-numbers kits with AI-p
 
 ---
 
-## 3. UI/UX Strategy
+## 3. Value Visualization Strategy (Freemium Conversion)
+
+The key to freemium success: **Show the full experience, gate the final output.**
+
+### Core Principle: "Experience Everything, Own Nothing (Free)"
+
+```
+FREE USER JOURNEY:
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Upload    │───▶│  Full AI    │───▶│ See ALL     │───▶│ Download    │
+│   Image     │    │  Analysis   │    │ Premium     │    │ Limited     │
+│             │    │  (No limit) │    │ Previews    │    │ Version     │
+└─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
+      ↓                  ↓                  ↓                  ↓
+   No friction      Show value         Create desire       Gate output
+```
+
+### What Free Users Experience vs. Own
+
+| Feature | Experience (See) | Own (Download) |
+|---------|-----------------|----------------|
+| Scene analysis | Full analysis shown | ✓ |
+| Step previews | ALL steps visible | First 3 only |
+| Resolution | See 4K preview | Download 720p |
+| Watermark | None in preview | Watermarked output |
+| Paint matching | See all brands | Generic colors only |
+| Instruction quality | Read Bob Ross tips | Basic numbered only |
+| View types | Toggle all 3 views | Cumulative only |
+
+### UI/UX Patterns for Value Visualization
+
+#### Pattern 1: The "Blur Reveal"
+```
+┌─────────────────────────────────────────────────┐
+│  Step 12 of 23: Highlights on the Lake         │
+│  ┌─────────────────────────────────────────┐   │
+│  │                                         │   │
+│  │     [BEAUTIFUL CRISP PREVIEW IMAGE]     │   │
+│  │                                         │   │
+│  │         ┌───────────────────┐           │   │
+│  │         │  🔒 Premium Only  │           │   │
+│  │         │                   │           │   │
+│  │         │  Unlock HD image  │           │   │
+│  │         │  for 1 credit     │           │   │
+│  │         └───────────────────┘           │   │
+│  │                                         │   │
+│  └─────────────────────────────────────────┘   │
+│                                                 │
+│  Bob Ross says: "Let's add some happy little   │
+│  ripples using a fan brush with Titanium Whi..." │
+│                          [Read more - Premium]  │
+└─────────────────────────────────────────────────┘
+```
+- Show full preview in app (not downloadable)
+- Blur or lock icon appears on hover/download attempt
+- Instructions truncated with "Read more" for premium
+
+#### Pattern 2: The "Side-by-Side Compare"
+```
+┌──────────────────────────────────────────────────────────┐
+│                    Your Result                           │
+├────────────────────────┬─────────────────────────────────┤
+│     FREE VERSION       │       PREMIUM VERSION           │
+│  ┌──────────────────┐  │  ┌──────────────────────────┐   │
+│  │ ░░░░░░░░░░░░░░░░ │  │  │                          │   │
+│  │ ░░ 720p with ░░░ │  │  │   CRYSTAL CLEAR 4K      │   │
+│  │ ░░ watermark ░░░ │  │  │   No watermark          │   │
+│  │ ░░░░░░░░░░░░░░░░ │  │  │                          │   │
+│  └──────────────────┘  │  └──────────────────────────┘   │
+│                        │                                 │
+│  • 3 steps visible     │  • All 23 steps                │
+│  • Basic instructions  │  • Bob Ross guidance           │
+│  • Generic paint names │  • Golden/Liquitex matches     │
+│                        │                                 │
+│  [Download Free]       │  [Unlock for 1 credit - $1.67] │
+└────────────────────────┴─────────────────────────────────┘
+```
+
+#### Pattern 3: The "Progress Lock"
+Show ALL steps but lock downloads after step 3:
+```
+Step 1: Sky Base Layer          [✓ Downloaded]
+Step 2: Mountain Silhouette     [✓ Downloaded]
+Step 3: Tree Line               [✓ Downloaded]
+─────────────────────────────────────────────
+Step 4: Lake Reflection         [🔒 1 credit]
+Step 5: Foreground Grass        [🔒 1 credit]
+...
+Step 23: Final Highlights       [🔒 1 credit]
+─────────────────────────────────────────────
+         [Unlock All Remaining - 3 credits]
+```
+
+#### Pattern 4: The "Feature Teaser Overlay"
+When users toggle to Context or Isolated view (premium only):
+```
+┌─────────────────────────────────────────────────┐
+│  View: [Cumulative] [Context🔒] [Isolated🔒]    │
+├─────────────────────────────────────────────────┤
+│  ┌─────────────────────────────────────────┐   │
+│  │                                         │   │
+│  │         [BLURRED CONTEXT VIEW]          │   │
+│  │                                         │   │
+│  │    ┌─────────────────────────────┐      │   │
+│  │    │  Context View shows your    │      │   │
+│  │    │  current step highlighted   │      │   │
+│  │    │  against the full image.    │      │   │
+│  │    │                             │      │   │
+│  │    │  Perfect for understanding  │      │   │
+│  │    │  WHERE to paint!            │      │   │
+│  │    │                             │      │   │
+│  │    │  [Unlock with Premium]      │      │   │
+│  │    └─────────────────────────────┘      │   │
+│  └─────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────┘
+```
+
+#### Pattern 5: The "Paint Shopping Tease"
+```
+┌─────────────────────────────────────────────────┐
+│  🎨 Your Paint Shopping List                    │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│  FREE VERSION:              PREMIUM:            │
+│  • Warm Brown              • Golden Heavy Body  │
+│  • Sky Blue                  Raw Sienna #1245  │
+│  • Forest Green            • Liquitex Cerulean │
+│  • ...                       Blue Deep #2108   │
+│                            • W&N Sap Green     │
+│                              Professional      │
+│                                                 │
+│  "Generic colors work, but exact paint matches │
+│   save hours of mixing and guesswork!"         │
+│                                                 │
+│  [Get Exact Paint Matches - 1 credit]          │
+└─────────────────────────────────────────────────┘
+```
+
+### Psychological Triggers
+
+| Trigger | Implementation | Why It Works |
+|---------|---------------|--------------|
+| **Sunk Cost** | Let users complete full upload + analysis first | "I've already invested time, might as well..." |
+| **Loss Aversion** | "Your kit will be deleted in 24 hours" | Fear of losing work they've "created" |
+| **Social Proof** | Show "1,234 kits created today" | Others are doing it, I should too |
+| **Endowment Effect** | "YOUR painting kit is ready" | They already feel ownership |
+| **Scarcity** | "Intro price: $4.99 (normally $9.99)" | Limited time increases urgency |
+| **Reciprocity** | Give full preview for free | Users feel they "owe" something |
+
+### Free-to-Paid Conversion Points
+
+```
+USER JOURNEY WITH CONVERSION POINTS:
+
+[Upload Image] ──── No friction, no signup required
+       │
+       ▼
+[See Full Analysis] ──── "Wow, it detected my dog!" (Value shown)
+       │
+       ▼
+[Preview All Steps] ──── Toggle through all 23 steps (Investment)
+       │
+       ▼
+[Try to Download] ──── CONVERSION POINT #1: "Unlock HD for $4.99"
+       │
+       ├── [Pays] ──► Gets everything, becomes repeat customer
+       │
+       └── [Skips] ──► Gets watermarked 720p, limited steps
+              │
+              ▼
+       [Tries Premium Feature] ──── CONVERSION POINT #2
+       (Context view, paint matching, video tutorial)
+              │
+              ▼
+       [Completes Painting] ──── CONVERSION POINT #3
+       "Share your masterpiece! Upgrade to remove watermark"
+              │
+              ▼
+       [Returns for 2nd Project] ──── CONVERSION POINT #4
+       "Welcome back! Your 2 free credits are used. Get more?"
+```
+
+### Implementation Checklist
+
+**Must Have (Launch)**
+- [ ] Watermark on free downloads
+- [ ] Resolution gate (720p free / 4K paid)
+- [ ] Step limit (3 free / all paid)
+- [ ] Full preview visible in-app
+
+**Nice to Have (Month 2)**
+- [ ] Side-by-side comparison modal
+- [ ] "Your kit expires in 24h" nudge
+- [ ] Paint brand preview (blurred for free)
+- [ ] Share-to-unlock bonus credit
+
+**Advanced (Month 3+)**
+- [ ] A/B test different gates
+- [ ] Personalized pricing based on engagement
+- [ ] "Refer a friend, unlock this kit free"
+- [ ] Email drip for abandoned kits
+
+---
+
+## 4. UI/UX Strategy
 
 ### Design Principles
 1. **Calm & Creative** - Soft colors, ample whitespace, art studio feel
