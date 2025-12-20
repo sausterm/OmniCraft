@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Loader2, AlertCircle, Sun, Cloud, MapPin, Lightbulb, Sparkles } from 'lucide-react';
 import PreviewGallery from '@/components/PreviewGallery';
 import ProductSelector from '@/components/ProductSelector';
-import api, { JobResults, Product } from '@/lib/api';
+import api, { JobResults, Product, PaintingGuide } from '@/lib/api';
 
 export default function PreviewPage() {
   const router = useRouter();
@@ -14,9 +14,11 @@ export default function PreviewPage() {
 
   const [results, setResults] = useState<JobResults | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const [paintingGuide, setPaintingGuide] = useState<PaintingGuide | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [promoApplied, setPromoApplied] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -27,6 +29,15 @@ export default function PreviewPage() {
         ]);
         setResults(resultsData);
         setProducts(productsData);
+
+        // Also fetch painting guide (non-blocking)
+        try {
+          const guideData = await api.getPaintingGuide(jobId);
+          setPaintingGuide(guideData);
+        } catch {
+          // Guide not available, that's okay
+          console.log('Painting guide not available');
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load results');
       } finally {
@@ -140,6 +151,7 @@ export default function PreviewPage() {
                 <PreviewGallery
                   outputs={results.outputs}
                   totalSteps={results.total_steps}
+                  paintingGuide={paintingGuide || undefined}
                 />
               )}
             </div>
@@ -181,6 +193,8 @@ export default function PreviewPage() {
                 products={products}
                 onCheckout={handleCheckout}
                 isLoading={isCheckingOut}
+                jobId={jobId}
+                onPromoApplied={(tier) => setPromoApplied(true)}
               />
             </div>
           </div>

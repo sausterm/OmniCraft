@@ -16,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .config import settings
-from .routes import upload, process, download, payment, health
+from .routes import upload, process, download, payment, health, promo
 
 
 @asynccontextmanager
@@ -89,6 +89,7 @@ AI-powered paint-by-numbers generation with:
     app.include_router(process.router, prefix="/api", tags=["Process"])
     app.include_router(download.router, prefix="/api", tags=["Download"])
     app.include_router(payment.router, prefix="/api", tags=["Payment"])
+    app.include_router(promo.router, prefix="/api", tags=["Promo"])
 
     # Global exception handler
     @app.exception_handler(Exception)

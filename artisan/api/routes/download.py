@@ -117,6 +117,37 @@ async def get_step_image(job_id: str, image_type: str, index: int):
     )
 
 
+@router.get("/guide/{job_id}")
+async def get_painting_guide(job_id: str):
+    """
+    Get the painting guide with Bob Ross-style instructions.
+
+    - **job_id**: The job ID
+
+    Returns JSON with step-by-step instructions for each region.
+    """
+    import json
+
+    if job_id not in jobs_db:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    job = jobs_db[job_id]
+
+    if job["status"] != JobStatus.COMPLETED:
+        raise HTTPException(status_code=400, detail="Job not completed")
+
+    output_dir = job["results"]["output_dir"]
+    guide_path = os.path.join(output_dir, "painting_guide.json")
+
+    if not os.path.exists(guide_path):
+        raise HTTPException(status_code=404, detail="Painting guide not found")
+
+    with open(guide_path, 'r') as f:
+        guide = json.load(f)
+
+    return guide
+
+
 @router.get("/preview/{job_id}")
 async def get_preview(job_id: str):
     """

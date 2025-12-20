@@ -53,6 +53,18 @@ const nextConfig = {
             ? `${process.env.NEXT_PUBLIC_API_URL}/api/checkout`
             : 'http://localhost:8000/api/checkout',
         },
+        {
+          source: '/api/guide/:path*',
+          destination: process.env.NEXT_PUBLIC_API_URL
+            ? `${process.env.NEXT_PUBLIC_API_URL}/api/guide/:path*`
+            : 'http://localhost:8000/api/guide/:path*',
+        },
+        {
+          source: '/api/promo/:path*',
+          destination: process.env.NEXT_PUBLIC_API_URL
+            ? `${process.env.NEXT_PUBLIC_API_URL}/api/promo/:path*`
+            : 'http://localhost:8000/api/promo/:path*',
+        },
       ],
     };
   },

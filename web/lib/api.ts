@@ -79,6 +79,35 @@ export interface CheckoutResponse {
   session_id: string;
 }
 
+export interface PromoCodeResponse {
+  valid: boolean;
+  message: string;
+  tier?: string;
+}
+
+export interface PaintingStep {
+  step_number: number;
+  region_name: string;
+  technique: string;
+  brush_type: string;
+  stroke_motion: string;
+  colors: string[];
+  instruction: string;
+  tips: string[];
+}
+
+export interface PaintingGuide {
+  total_steps: number;
+  scene_context: {
+    time_of_day: string;
+    weather: string;
+    setting: string;
+    lighting: string;
+    mood: string;
+  };
+  steps: PaintingStep[];
+}
+
 class ApiClient {
   private async request<T>(
     endpoint: string,
@@ -238,6 +267,23 @@ class ApiClient {
     products: string[];
   }> {
     return this.request(`/api/verify/${sessionId}`);
+  }
+
+  /**
+   * Validate and redeem a promo code
+   */
+  async validatePromoCode(code: string, jobId: string): Promise<PromoCodeResponse> {
+    return this.request<PromoCodeResponse>('/api/promo/validate', {
+      method: 'POST',
+      body: JSON.stringify({ code, job_id: jobId }),
+    });
+  }
+
+  /**
+   * Get the painting guide with step-by-step instructions
+   */
+  async getPaintingGuide(jobId: string): Promise<PaintingGuide> {
+    return this.request<PaintingGuide>(`/api/guide/${jobId}`);
   }
 
   /**
