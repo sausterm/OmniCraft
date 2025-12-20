@@ -44,8 +44,19 @@ export default function PreviewGallery({
   const [currentStep, setCurrentStep] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>('cumulative');
 
-  const currentImages = outputs[viewMode];
-  const maxStep = currentImages.length - 1;
+  // Handle undefined or empty outputs
+  const currentImages = outputs?.[viewMode] ?? [];
+  const maxStep = Math.max(0, currentImages.length - 1);
+
+  // If no images available, show placeholder
+  if (!outputs || (!outputs.cumulative?.length && !outputs.context?.length && !outputs.isolated?.length)) {
+    return (
+      <div className="text-center py-12 text-gray-500">
+        <p>No preview images available yet.</p>
+        <p className="text-sm mt-2">Processing may still be in progress.</p>
+      </div>
+    );
+  }
 
   const goToStep = (step: number) => {
     setCurrentStep(Math.max(0, Math.min(step, maxStep)));

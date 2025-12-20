@@ -155,9 +155,10 @@ class ApiClient {
     const apiResult = await this.request<ApiProcessingResult>(`/api/results/${jobId}`);
 
     // Transform API response to frontend format
+    // Use local proxy route to avoid ngrok header issues with <img> tags
     const generateUrls = (type: string, count: number): string[] => {
       return Array.from({ length: count }, (_, i) =>
-        `${API_BASE}/api/image/${jobId}/${type}/${i}`
+        `/api/image/${jobId}/${type}/${i}`
       );
     };
 

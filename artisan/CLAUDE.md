@@ -123,3 +123,44 @@ Output:
 - **matplotlib, Pillow**: Visualization
 - **ultralytics**: YOLO segmentation
 - **torch, diffusers** (optional): Style transfer
+
+## Web Application
+
+The project includes a Next.js frontend (`../web/`) and FastAPI backend (`api/`).
+
+### Local Development
+
+```bash
+# Terminal 1: Start API
+cd /path/to/OmniCraft
+./artisan/venv/bin/python -m uvicorn artisan.api.main:app --reload
+
+# Terminal 2: Start Web
+cd /path/to/OmniCraft/web
+npm install && npm run dev
+```
+
+### Docker Deployment
+
+```bash
+# Full stack (with Postgres/Redis)
+docker-compose up -d
+
+# Simple development stack
+docker-compose -f docker-compose.dev.yml up
+
+# Access at http://localhost:3000
+```
+
+### Vercel + Railway Deployment
+
+1. **Frontend (Vercel)**:
+   - Connect `web/` folder to Vercel
+   - Set `NEXT_PUBLIC_API_URL` environment variable to your API URL
+   - Deploy
+
+2. **Backend (Railway/Render)**:
+   - Connect repository to Railway
+   - Use `Dockerfile` at root
+   - Set environment variables (see docker-compose.yml)
+   - Deploy

@@ -1,0 +1,231 @@
+{
+  "method": "yolo_bob_ross_context_aware",
+  "scene_context": {
+    "time_of_day": "day",
+    "weather": "stormy",
+    "setting": "nature_open",
+    "lighting": "dramatic",
+    "mood": "dramatic",
+    "light_direction": "bottom-right",
+    "color_temperature": 0.551,
+    "avg_luminosity": 0.294,
+    "contrast": 0.725,
+    "saturation": 0.465
+  },
+  "num_regions": 3,
+  "total_substeps": 12,
+  "regions": [
+    {
+      "name": "Trees",
+      "subject_type": "tree",
+      "category": "environment",
+      "coverage": 0.3425,
+      "confidence": 1.0,
+      "is_focal": false,
+      "lighting_role": "receiver_lit",
+      "value_progression": "dark_to_light",
+      "depth_layer": "far_midground",
+      "substeps": 4,
+      "substep_details": [
+        {
+          "name": "Trees - Dark Values",
+          "technique": "blocking",
+          "coverage": 0.357
+        },
+        {
+          "name": "Trees - Shadow Mid-tones",
+          "technique": "layering",
+          "coverage": 0.36
+        },
+        {
+          "name": "Trees - Light Mid-tones",
+          "technique": "layering",
+          "coverage": 0.363
+        },
+        {
+          "name": "Trees - Light Values",
+          "technique": "blending",
+          "coverage": 0.25
+        }
+      ]
+    },
+    {
+      "name": "Dark Trees",
+      "subject_type": "unknown",
+      "category": "environment",
+      "coverage": 0.6132,
+      "confidence": 1.0,
+      "is_focal": false,
+      "lighting_role": "shadow",
+      "value_progression": "muted_flat",
+      "depth_layer": "far_midground",
+      "substeps": 4,
+      "substep_details": [
+        {
+          "name": "Dark Trees - Shadow Core",
+          "technique": "blocking",
+          "coverage": 0.251
+        },
+        {
+          "name": "Dark Trees - Shadow Variation",
+          "technique": "layering",
+          "coverage": 0.216
+        },
+        {
+          "name": "Dark Trees - Shadow Mid",
+          "technique": "blending",
+          "coverage": 0.207
+        },
+        {
+          "name": "Dark Trees - Shadow Edge",
+          "technique": "blending",
+          "coverage": 0.508
+        }
+      ]
+    },
+    {
+      "name": "Person",
+      "subject_type": "person",
+      "category": "subject",
+      "coverage": 0.0444,
+      "confidence": 0.87,
+      "is_focal": true,
+      "lighting_role": "shadow",
+      "value_progression": "muted_flat",
+      "depth_layer": "focal",
+      "substeps": 4,
+      "substep_details": [
+        {
+          "name": "Person - Shadow Core",
+          "technique": "blocking",
+          "coverage": 1.0
+        },
+        {
+          "name": "Person - Shadow Variation",
+          "technique": "layering",
+          "coverage": 0.862
+        },
+        {
+          "name": "Person - Shadow Mid",
+          "technique": "blending",
+          "coverage": 0.862
+        },
+        {
+          "name": "Person - Shadow Edge",
+          "technique": "blending",
+          "coverage": 0.862
+        }
+      ]
+    }
+  ],
+  "advanced_scene_analysis": {
+    "scene_type": "aurora",
+    "is_backlit": false,
+    "primary_light_direction": [
+      0.01303553197734991,
+      -0.9999150338434099
+    ],
+    "light_sources": [
+      {
+        "type": "emission",
+        "intensity": 0.7,
+        "color_temperature": 0.3,
+        "is_primary": true,
+        "position": [
+          554,
+          202
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.902,
+        "color_temperature": 0.515,
+        "is_primary": false,
+        "position": [
+          393,
+          209
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.505,
+        "is_primary": false,
+        "position": [
+          430,
+          455
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.505,
+        "is_primary": false,
+        "position": [
+          438,
+          465
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.51,
+        "is_primary": false,
+        "position": [
+          534,
+          194
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.906,
+        "color_temperature": 0.499,
+        "is_primary": false,
+        "position": [
+          571,
+          65
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.505,
+        "is_primary": false,
+        "position": [
+          598,
+          194
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.886,
+        "color_temperature": 0.517,
+        "is_primary": false,
+        "position": [
+          698,
+          471
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.902,
+        "color_temperature": 0.507,
+        "is_primary": false,
+        "position": [
+          763,
+          436
+        ]
+      }
+    ],
+    "painting_order": [
+      "Trees",
+      "Dark Trees",
+      "Person"
+    ],
+    "notes": [
+      "Scene type: aurora",
+      "Aurora: Paint dark sky base first, then build up the glow",
+      "Multiple point light sources - consider each light's influence"
+    ]
+  }
+}

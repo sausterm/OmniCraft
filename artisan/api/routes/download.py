@@ -76,6 +76,47 @@ async def get_products(job_id: str):
     )
 
 
+@router.get("/image/{job_id}/{image_type}/{index}")
+async def get_step_image(job_id: str, image_type: str, index: int):
+    """
+    Get a specific step image.
+
+    - **job_id**: The job ID
+    - **image_type**: cumulative, context, or isolated
+    - **index**: Step index (0-based)
+    """
+    if job_id not in jobs_db:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    job = jobs_db[job_id]
+
+    if job["status"] != JobStatus.COMPLETED:
+        raise HTTPException(status_code=400, detail="Job not completed")
+
+    if image_type not in ["cumulative", "context", "isolated"]:
+        raise HTTPException(status_code=400, detail="Invalid image type")
+
+    output_dir = job["results"]["output_dir"]
+    image_dir = os.path.join(output_dir, "steps", image_type)
+
+    if not os.path.exists(image_dir):
+        raise HTTPException(status_code=404, detail=f"Image directory not found: {image_type}")
+
+    # Get sorted list of images
+    images = sorted([f for f in os.listdir(image_dir) if f.endswith('.png')])
+
+    if index < 0 or index >= len(images):
+        raise HTTPException(status_code=404, detail=f"Image index out of range: {index}")
+
+    image_path = os.path.join(image_dir, images[index])
+
+    return FileResponse(
+        image_path,
+        media_type="image/png",
+        filename=f"{image_type}_{index}.png"
+    )
+
+
 @router.get("/preview/{job_id}")
 async def get_preview(job_id: str):
     """

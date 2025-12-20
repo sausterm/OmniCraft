@@ -1,3 +1,3 @@
-"""Command-line interface tools for PaintX."""
+"""Command-line interface tools for Artisan."""
 
-__all__ = []
+__all__ = ["generate", "booklet", "style_transfer", "lesson"]

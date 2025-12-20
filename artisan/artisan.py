@@ -38,11 +38,11 @@ from .core.scene_graph import SceneGraph, Entity, EntityType
 from .core.art_principles import ArtPrinciplesEngine, ConstructionPhilosophy
 from .core.construction import ConstructionPlan
 
-from .perception.semantic import SemanticSegmenter, SegmentationResult
-from .perception.scene_builder import SceneGraphBuilder
-from .perception.subject_detector import SubjectDetector, SubjectAnalysis
+from .vision.segmentation.semantic import SemanticSegmenter, SegmentationResult
+from .vision.analysis.scene_builder import SceneGraphBuilder
+from .vision.segmentation.subject_detector import SubjectDetector, SubjectAnalysis
 
-from .planning.lesson_plan import LessonPlan, LessonPlanGenerator
+from .paint.planning.lesson_plan import LessonPlan, LessonPlanGenerator
 
 
 class Artisan:

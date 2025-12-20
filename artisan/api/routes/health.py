@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from ..config import settings
-from ...perception.yolo_segmentation import YOLO_AVAILABLE
+from artisan.vision.segmentation.yolo_segmentation import YOLO_AVAILABLE
 
 
 router = APIRouter()

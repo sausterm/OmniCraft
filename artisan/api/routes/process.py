@@ -30,7 +30,7 @@ def run_processing(job_id: str, config: ProcessConfig):
     This runs in a separate thread to not block the API.
     In production, this would be a Celery task.
     """
-    from ...generators.yolo_bob_ross_paint import YOLOBobRossPaint
+    from artisan.paint.generators.yolo_bob_ross_paint import YOLOBobRossPaint
 
     job = jobs_db.get(job_id)
     if not job:

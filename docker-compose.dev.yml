@@ -1,0 +1,38 @@
+# Artisan Paint-by-Numbers - Simple Development Stack
+# Run with: docker-compose -f docker-compose.dev.yml up
+#
+# This is a simpler setup without Postgres/Redis for quick local testing.
+# Uses SQLite and in-memory task queues.
+
+version: '3.8'
+
+services:
+  # Next.js Web Frontend (development mode)
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - api
+
+  # FastAPI Backend
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=true
+      - ENVIRONMENT=development
+      - CORS_ORIGINS=["http://localhost:3000","http://127.0.0.1:3000"]
+    volumes:
+      - ./artisan:/app/artisan
+      - ./artisan/api/uploads:/app/artisan/api/uploads
+      - ./artisan/api/outputs:/app/artisan/api/outputs
