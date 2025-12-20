@@ -23,9 +23,10 @@ class Settings(BaseSettings):
     port: int = 8000
     workers: int = 4
 
-    # CORS
+    # CORS - Allow all origins for beta testing
+    # TODO: Restrict to specific origins for production
     cors_origins: List[str] = Field(
-        default=["http://localhost:3000", "http://127.0.0.1:3000"],
+        default=["*"],
         description="Allowed CORS origins"
     )
 
