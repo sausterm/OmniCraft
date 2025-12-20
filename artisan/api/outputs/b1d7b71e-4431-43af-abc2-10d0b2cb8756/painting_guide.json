@@ -1,0 +1,404 @@
+[
+  {
+    "step": 0,
+    "name": "Canvas Preparation",
+    "type": "setup",
+    "bob_ross_intro": "Welcome! Today we're going to paint a beautiful scene together. Let's start by preparing our canvas with a thin layer of liquid white.",
+    "materials": [
+      "Canvas prepared with liquid white",
+      "Paper towels for cleaning brushes",
+      "Odorless thinner",
+      "Your palette arranged with colors"
+    ],
+    "tips": [
+      "Make sure your liquid white is thin and even",
+      "Have all your brushes clean and ready",
+      "Remember - we don't make mistakes, just happy accidents!"
+    ]
+  },
+  {
+    "step": 0.5,
+    "name": "Begin Bright Sky",
+    "type": "layer_intro",
+    "region": "Bright Sky",
+    "category": "background",
+    "bob_ross_intro": "Let's start with our bright sky in the background. Remember, we always work from the back forward.",
+    "tips": [
+      "Don't overwork this area - it's supporting, not starring",
+      "Keep your strokes confident and decisive",
+      "Let's get a little crazy here."
+    ],
+    "is_focal": false,
+    "lighting_role": "emitter",
+    "value_progression": "light_to_dark",
+    "depth_layer": "background"
+  },
+  {
+    "step": 1,
+    "name": "Bright Sky - Core Glow",
+    "type": "paint_substep",
+    "parent_region": "Bright Sky",
+    "category": "background",
+    "technique": "blocking",
+    "brush": "2-inch brush",
+    "strokes": "soft coverage",
+    "coverage": "26.0%",
+    "luminosity_range": [
+      0.9372549019607843,
+      1.0
+    ],
+    "dominant_color": [
+      220,
+      231,
+      244
+    ],
+    "instruction": "Let's start blocking in the bright sky - core glow. Load your 2-inch brush with a thin, dark mix. We're just establishing our values here - don't worry about details yet.",
+    "tips": [
+      "Keep your paint thin at this stage",
+      "Don't be afraid of the dark - it creates depth",
+      "That's a nice touch right there."
+    ],
+    "is_focal": false
+  },
+  {
+    "step": 2,
+    "name": "Bright Sky - Light Falloff",
+    "type": "paint_substep",
+    "parent_region": "Bright Sky",
+    "category": "background",
+    "technique": "layering",
+    "brush": "2-inch brush",
+    "strokes": "blend outward",
+    "coverage": "35.8%",
+    "luminosity_range": [
+      0.9098039215686274,
+      0.9529411764705882
+    ],
+    "dominant_color": [
+      198,
+      215,
+      236
+    ],
+    "instruction": "Time to build up our bright sky - light falloff. With your 2-inch brush, use blend outward. Work the paint into the canvas, blending with what's already there.",
+    "tips": [
+      "Let each layer dry slightly before the next",
+      "Build up gradually - you can always add more",
+      "Let's get a little crazy here."
+    ],
+    "is_focal": false
+  },
+  {
+    "step": 3,
+    "name": "Bright Sky - Mid Values",
+    "type": "paint_substep",
+    "parent_region": "Bright Sky",
+    "category": "background",
+    "technique": "layering",
+    "brush": "1-inch brush",
+    "strokes": "transition zones",
+    "coverage": "37.6%",
+    "luminosity_range": [
+      0.8745098039215686,
+      0.9176470588235294
+    ],
+    "dominant_color": [
+      185,
+      204,
+      229
+    ],
+    "instruction": "Time to build up our bright sky - mid values. With your 1-inch brush, use transition zones. Work the paint into the canvas, blending with what's already there.",
+    "tips": [
+      "Let each layer dry slightly before the next",
+      "Build up gradually - you can always add more",
+      "We don't make mistakes, we have happy accidents."
+    ],
+    "is_focal": false
+  },
+  {
+    "step": 4,
+    "name": "Bright Sky - Dark Transition",
+    "type": "paint_substep",
+    "parent_region": "Bright Sky",
+    "category": "background",
+    "technique": "blending",
+    "brush": "fan brush",
+    "strokes": "feather edges",
+    "coverage": "37.9%",
+    "luminosity_range": [
+      0.6823529411764706,
+      0.8941176470588236
+    ],
+    "dominant_color": [
+      170,
+      191,
+      219
+    ],
+    "instruction": "Let's soften and blend our bright sky. Take your fan brush and use gentle feather edges. We're creating smooth transitions between our values.",
+    "tips": [
+      "Let's get a little crazy here."
+    ],
+    "is_focal": false
+  },
+  {
+    "step": 4.5,
+    "name": "Begin Ground",
+    "type": "layer_intro",
+    "region": "Ground",
+    "category": "environment",
+    "bob_ross_intro": "Now let's bring in our ground. This is going to be so much fun.",
+    "tips": [
+      "Don't overwork this area - it's supporting, not starring",
+      "Keep your strokes confident and decisive",
+      "Take your time - there's no pressure."
+    ],
+    "is_focal": false,
+    "lighting_role": "silhouette",
+    "value_progression": "silhouette_rim",
+    "depth_layer": "near_midground"
+  },
+  {
+    "step": 5,
+    "name": "Ground - Core Shadow",
+    "type": "paint_substep",
+    "parent_region": "Ground",
+    "category": "environment",
+    "technique": "blocking",
+    "brush": "1-inch brush",
+    "strokes": "establish mass",
+    "coverage": "26.0%",
+    "luminosity_range": [
+      0.39215686274509803,
+      0.611764705882353
+    ],
+    "dominant_color": [
+      139,
+      119,
+      92
+    ],
+    "instruction": "Let's start blocking in the ground - core shadow. Load your 1-inch brush with a thin, dark mix. We're just establishing our values here - don't worry about details yet.",
+    "tips": [
+      "Keep your paint thin at this stage",
+      "Don't be afraid of the dark - it creates depth",
+      "Let's get a little crazy here."
+    ],
+    "is_focal": false
+  },
+  {
+    "step": 6,
+    "name": "Ground - Shadow Variation",
+    "type": "paint_substep",
+    "parent_region": "Ground",
+    "category": "environment",
+    "technique": "layering",
+    "brush": "filbert",
+    "strokes": "subtle form",
+    "coverage": "26.7%",
+    "luminosity_range": [
+      0.596078431372549,
+      0.6627450980392157
+    ],
+    "dominant_color": [
+      141,
+      129,
+      104
+    ],
+    "instruction": "Time to build up our ground - shadow variation. With your filbert, use subtle form. Work the paint into the canvas, blending with what's already there.",
+    "tips": [
+      "Let each layer dry slightly before the next",
+      "Build up gradually - you can always add more",
+      "This is your world - you can do anything."
+    ],
+    "is_focal": false
+  },
+  {
+    "step": 7,
+    "name": "Ground - Edge Transition",
+    "type": "paint_substep",
+    "parent_region": "Ground",
+    "category": "environment",
+    "technique": "layering",
+    "brush": "fan brush",
+    "strokes": "soft edges",
+    "coverage": "32.8%",
+    "luminosity_range": [
+      0.6509803921568628,
+      0.7137254901960784
+    ],
+    "dominant_color": [
+      119,
+      131,
+      167
+    ],
+    "instruction": "Time to build up our ground - edge transition. With your fan brush, use soft edges. Work the paint into the canvas, blending with what's already there.",
+    "tips": [
+      "Let each layer dry slightly before the next",
+      "Build up gradually - you can always add more",
+      "That's a nice touch right there."
+    ],
+    "is_focal": false
+  },
+  {
+    "step": 8,
+    "name": "Ground - Rim Light",
+    "type": "paint_substep",
+    "parent_region": "Ground",
+    "category": "environment",
+    "technique": "highlighting",
+    "brush": "script liner",
+    "strokes": "edge highlights",
+    "coverage": "27.9%",
+    "luminosity_range": [
+      0.7254901960784313,
+      1.0
+    ],
+    "dominant_color": [
+      140,
+      149,
+      187
+    ],
+    "instruction": "Now for the magic - let's add highlights to our ground! Load just a little paint on your script liner. Less is more here - just touch where the light would naturally hit.",
+    "tips": [
+      "Highlights are the icing on the cake",
+      "Use your brightest values sparingly",
+      "Just let it happen naturally."
+    ],
+    "is_focal": false
+  },
+  {
+    "step": 8.5,
+    "name": "Begin Grass",
+    "type": "layer_intro",
+    "region": "Grass",
+    "category": "environment",
+    "bob_ross_intro": "Now let's bring in our grass. This is going to be so much fun.",
+    "tips": [
+      "Don't overwork this area - it's supporting, not starring",
+      "Keep your strokes confident and decisive",
+      "Let's give this little friend some company."
+    ],
+    "is_focal": false,
+    "lighting_role": "silhouette",
+    "value_progression": "silhouette_rim",
+    "depth_layer": "near_midground"
+  },
+  {
+    "step": 9,
+    "name": "Grass - Core Shadow",
+    "type": "paint_substep",
+    "parent_region": "Grass",
+    "category": "environment",
+    "technique": "blocking",
+    "brush": "1-inch brush",
+    "strokes": "establish mass",
+    "coverage": "25.2%",
+    "luminosity_range": [
+      0.0,
+      0.35294117647058826
+    ],
+    "dominant_color": [
+      16,
+      70,
+      33
+    ],
+    "instruction": "Let's start blocking in the grass - core shadow. Load your 1-inch brush with a thin, dark mix. We're just establishing our values here - don't worry about details yet.",
+    "tips": [
+      "Keep your paint thin at this stage",
+      "Don't be afraid of the dark - it creates depth",
+      "This is your world - you can do anything."
+    ],
+    "is_focal": false
+  },
+  {
+    "step": 10,
+    "name": "Grass - Shadow Variation",
+    "type": "paint_substep",
+    "parent_region": "Grass",
+    "category": "environment",
+    "technique": "layering",
+    "brush": "filbert",
+    "strokes": "subtle form",
+    "coverage": "26.2%",
+    "luminosity_range": [
+      0.32941176470588235,
+      0.4235294117647059
+    ],
+    "dominant_color": [
+      56,
+      96,
+      40
+    ],
+    "instruction": "Time to build up our grass - shadow variation. With your filbert, use subtle form. Work the paint into the canvas, blending with what's already there.",
+    "tips": [
+      "Let each layer dry slightly before the next",
+      "Build up gradually - you can always add more",
+      "We don't make mistakes, we have happy accidents."
+    ],
+    "is_focal": false
+  },
+  {
+    "step": 11,
+    "name": "Grass - Edge Transition",
+    "type": "paint_substep",
+    "parent_region": "Grass",
+    "category": "environment",
+    "technique": "layering",
+    "brush": "fan brush",
+    "strokes": "soft edges",
+    "coverage": "33.4%",
+    "luminosity_range": [
+      0.40784313725490196,
+      0.49019607843137253
+    ],
+    "dominant_color": [
+      79,
+      112,
+      47
+    ],
+    "instruction": "Time to build up our grass - edge transition. With your fan brush, use soft edges. Work the paint into the canvas, blending with what's already there.",
+    "tips": [
+      "Let each layer dry slightly before the next",
+      "Build up gradually - you can always add more",
+      "We don't make mistakes, we have happy accidents."
+    ],
+    "is_focal": false
+  },
+  {
+    "step": 12,
+    "name": "Grass - Rim Light",
+    "type": "paint_substep",
+    "parent_region": "Grass",
+    "category": "environment",
+    "technique": "highlighting",
+    "brush": "script liner",
+    "strokes": "edge highlights",
+    "coverage": "27.5%",
+    "luminosity_range": [
+      0.5019607843137255,
+      0.7686274509803922
+    ],
+    "dominant_color": [
+      104,
+      136,
+      57
+    ],
+    "instruction": "Now for the magic - let's add highlights to our grass! Load just a little paint on your script liner. Less is more here - just touch where the light would naturally hit.",
+    "tips": [
+      "Highlights are the icing on the cake",
+      "Use your brightest values sparingly",
+      "That's a nice touch right there."
+    ],
+    "is_focal": false
+  },
+  {
+    "step": 13,
+    "name": "Final Touches & Sign",
+    "type": "finishing",
+    "bob_ross_outro": "There we go! Our painting is complete. Step back and admire your work. Remember, this is YOUR world - you created something beautiful today.",
+    "tips": [
+      "Step back and view from a distance",
+      "Make any final value adjustments",
+      "Add your signature - you've earned it!",
+      "Most importantly - be proud of what you've created!"
+    ]
+  }
+]
