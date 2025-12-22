@@ -244,6 +244,7 @@ class ApiClient {
   async createCheckout(
     jobId: string,
     productIds: string[],
+    email: string,
     successUrl?: string,
     cancelUrl?: string
   ): Promise<CheckoutResponse> {
@@ -252,6 +253,7 @@ class ApiClient {
       body: JSON.stringify({
         job_id: jobId,
         product_ids: productIds,
+        email,
         success_url: successUrl,
         cancel_url: cancelUrl,
       }),

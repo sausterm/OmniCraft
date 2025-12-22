@@ -1,0 +1,4332 @@
+{
+  "method": "yolo_bob_ross_context_aware",
+  "scene_context": {
+    "time_of_day": "day",
+    "weather": "clear",
+    "setting": "nature_open",
+    "lighting": "back_lit",
+    "mood": "dramatic",
+    "light_direction": "top-left",
+    "color_temperature": 0.498,
+    "avg_luminosity": 0.599,
+    "contrast": 0.643,
+    "saturation": 0.453
+  },
+  "num_regions": 3,
+  "total_substeps": 12,
+  "regions": [
+    {
+      "name": "Bright Sky",
+      "subject_type": "unknown",
+      "category": "background",
+      "coverage": 0.378,
+      "confidence": 1.0,
+      "is_focal": false,
+      "lighting_role": "emitter",
+      "value_progression": "light_to_dark",
+      "depth_layer": "background",
+      "substeps": 4,
+      "substep_details": [
+        {
+          "name": "Bright Sky - Core Glow",
+          "technique": "blocking",
+          "coverage": 0.259
+        },
+        {
+          "name": "Bright Sky - Light Falloff",
+          "technique": "layering",
+          "coverage": 0.357
+        },
+        {
+          "name": "Bright Sky - Mid Values",
+          "technique": "layering",
+          "coverage": 0.375
+        },
+        {
+          "name": "Bright Sky - Dark Transition",
+          "technique": "blending",
+          "coverage": 0.381
+        }
+      ]
+    },
+    {
+      "name": "Ground",
+      "subject_type": "ground",
+      "category": "environment",
+      "coverage": 0.2781,
+      "confidence": 1.0,
+      "is_focal": false,
+      "lighting_role": "silhouette",
+      "value_progression": "silhouette_rim",
+      "depth_layer": "near_midground",
+      "substeps": 4,
+      "substep_details": [
+        {
+          "name": "Ground - Core Shadow",
+          "technique": "blocking",
+          "coverage": 0.254
+        },
+        {
+          "name": "Ground - Shadow Variation",
+          "technique": "layering",
+          "coverage": 0.261
+        },
+        {
+          "name": "Ground - Edge Transition",
+          "technique": "layering",
+          "coverage": 0.342
+        },
+        {
+          "name": "Ground - Rim Light",
+          "technique": "highlighting",
+          "coverage": 0.273
+        }
+      ]
+    },
+    {
+      "name": "Grass",
+      "subject_type": "grass",
+      "category": "environment",
+      "coverage": 0.3439,
+      "confidence": 1.0,
+      "is_focal": false,
+      "lighting_role": "silhouette",
+      "value_progression": "silhouette_rim",
+      "depth_layer": "near_midground",
+      "substeps": 4,
+      "substep_details": [
+        {
+          "name": "Grass - Core Shadow",
+          "technique": "blocking",
+          "coverage": 0.254
+        },
+        {
+          "name": "Grass - Shadow Variation",
+          "technique": "layering",
+          "coverage": 0.264
+        },
+        {
+          "name": "Grass - Edge Transition",
+          "technique": "layering",
+          "coverage": 0.321
+        },
+        {
+          "name": "Grass - Rim Light",
+          "technique": "highlighting",
+          "coverage": 0.284
+        }
+      ]
+    }
+  ],
+  "advanced_scene_analysis": {
+    "scene_type": "landscape",
+    "is_backlit": true,
+    "primary_light_direction": [
+      0.019735963253788086,
+      0.9998052269089441
+    ],
+    "light_sources": [
+      {
+        "type": "diffuse",
+        "intensity": 0.793,
+        "color_temperature": 0.469,
+        "is_primary": true,
+        "position": [
+          181,
+          526
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.475,
+        "is_primary": false,
+        "position": [
+          0,
+          912
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.856,
+        "color_temperature": 0.478,
+        "is_primary": false,
+        "position": [
+          4,
+          379
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          9,
+          902
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.474,
+        "is_primary": false,
+        "position": [
+          10,
+          900
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          34,
+          994
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          36,
+          1066
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          43,
+          1031
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.854,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          51,
+          1056
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          57,
+          1031
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          74,
+          822
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.464,
+        "is_primary": false,
+        "position": [
+          72,
+          1085
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.9,
+        "color_temperature": 0.477,
+        "is_primary": false,
+        "position": [
+          91,
+          803
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.477,
+        "is_primary": false,
+        "position": [
+          79,
+          349
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.864,
+        "color_temperature": 0.468,
+        "is_primary": false,
+        "position": [
+          79,
+          838
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.854,
+        "color_temperature": 0.46,
+        "is_primary": false,
+        "position": [
+          85,
+          97
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.461,
+        "is_primary": false,
+        "position": [
+          87,
+          106
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.857,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          86,
+          874
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          88,
+          2
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.466,
+        "is_primary": false,
+        "position": [
+          89,
+          909
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.465,
+        "is_primary": false,
+        "position": [
+          90,
+          903
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.475,
+        "is_primary": false,
+        "position": [
+          95,
+          393
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.885,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          97,
+          883
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.468,
+        "is_primary": false,
+        "position": [
+          96,
+          866
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          96,
+          999
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.866,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          99,
+          639
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.461,
+        "is_primary": false,
+        "position": [
+          101,
+          156
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.462,
+        "is_primary": false,
+        "position": [
+          101,
+          158
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.462,
+        "is_primary": false,
+        "position": [
+          103,
+          196
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          103,
+          633
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.474,
+        "is_primary": false,
+        "position": [
+          102,
+          972
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.475,
+        "is_primary": false,
+        "position": [
+          103,
+          974
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.463,
+        "is_primary": false,
+        "position": [
+          104,
+          152
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.46,
+        "is_primary": false,
+        "position": [
+          104,
+          201
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.865,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          106,
+          684
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          105,
+          826
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.468,
+        "is_primary": false,
+        "position": [
+          107,
+          545
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.462,
+        "is_primary": false,
+        "position": [
+          108,
+          168
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.862,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          110,
+          796
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.858,
+        "color_temperature": 0.468,
+        "is_primary": false,
+        "position": [
+          109,
+          887
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.869,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          111,
+          537
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          110,
+          585
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.861,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          112,
+          878
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.852,
+        "color_temperature": 0.465,
+        "is_primary": false,
+        "position": [
+          113,
+          175
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.857,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          115,
+          480
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.465,
+        "is_primary": false,
+        "position": [
+          116,
+          183
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          116,
+          440
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.862,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          120,
+          535
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.875,
+        "color_temperature": 0.474,
+        "is_primary": false,
+        "position": [
+          120,
+          853
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.852,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          119,
+          879
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.857,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          125,
+          409
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.865,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          123,
+          419
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.861,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          122,
+          846
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.857,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          123,
+          891
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          123,
+          910
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.468,
+        "is_primary": false,
+        "position": [
+          123,
+          249
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          122,
+          428
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.868,
+        "color_temperature": 0.468,
+        "is_primary": false,
+        "position": [
+          123,
+          964
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.852,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          125,
+          454
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.854,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          127,
+          451
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.854,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          127,
+          937
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          133,
+          408
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.872,
+        "color_temperature": 0.474,
+        "is_primary": false,
+        "position": [
+          133,
+          907
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.854,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          135,
+          377
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          136,
+          407
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          135,
+          466
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          137,
+          461
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.907,
+        "color_temperature": 0.479,
+        "is_primary": false,
+        "position": [
+          140,
+          897
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          139,
+          411
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          142,
+          867
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          143,
+          874
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          144,
+          879
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.908,
+        "color_temperature": 0.479,
+        "is_primary": false,
+        "position": [
+          148,
+          887
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.87,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          146,
+          900
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.864,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          148,
+          878
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          151,
+          375
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          150,
+          377
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          150,
+          408
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.468,
+        "is_primary": false,
+        "position": [
+          150,
+          412
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.479,
+        "is_primary": false,
+        "position": [
+          156,
+          1081
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          153,
+          378
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          152,
+          413
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.861,
+        "color_temperature": 0.478,
+        "is_primary": false,
+        "position": [
+          153,
+          1054
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          152,
+          1070
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.852,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          158,
+          371
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.854,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          155,
+          814
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.874,
+        "color_temperature": 0.475,
+        "is_primary": false,
+        "position": [
+          155,
+          879
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.894,
+        "color_temperature": 0.48,
+        "is_primary": false,
+        "position": [
+          164,
+          924
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.478,
+        "is_primary": false,
+        "position": [
+          157,
+          1027
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          156,
+          1074
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.474,
+        "is_primary": false,
+        "position": [
+          159,
+          886
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.86,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          158,
+          907
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.857,
+        "color_temperature": 0.477,
+        "is_primary": false,
+        "position": [
+          159,
+          1073
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          161,
+          1067
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          164,
+          261
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          165,
+          992
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          164,
+          995
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.857,
+        "color_temperature": 0.478,
+        "is_primary": false,
+        "position": [
+          169,
+          1037
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.477,
+        "is_primary": false,
+        "position": [
+          164,
+          1046
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.478,
+        "is_primary": false,
+        "position": [
+          166,
+          1080
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          166,
+          355
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.857,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          166,
+          973
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.854,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          170,
+          347
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.475,
+        "is_primary": false,
+        "position": [
+          169,
+          496
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.86,
+        "color_temperature": 0.478,
+        "is_primary": false,
+        "position": [
+          170,
+          933
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          171,
+          355
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.89,
+        "color_temperature": 0.479,
+        "is_primary": false,
+        "position": [
+          175,
+          824
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          175,
+          356
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          174,
+          358
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          175,
+          487
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          174,
+          490
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          178,
+          220
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.86,
+        "color_temperature": 0.478,
+        "is_primary": false,
+        "position": [
+          179,
+          1049
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.888,
+        "color_temperature": 0.48,
+        "is_primary": false,
+        "position": [
+          185,
+          766
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.887,
+        "color_temperature": 0.478,
+        "is_primary": false,
+        "position": [
+          182,
+          778
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.475,
+        "is_primary": false,
+        "position": [
+          180,
+          877
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.475,
+        "is_primary": false,
+        "position": [
+          180,
+          880
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.477,
+        "is_primary": false,
+        "position": [
+          181,
+          976
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.872,
+        "color_temperature": 0.483,
+        "is_primary": false,
+        "position": [
+          186,
+          1011
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.864,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          186,
+          742
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.901,
+        "color_temperature": 0.487,
+        "is_primary": false,
+        "position": [
+          193,
+          952
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.902,
+        "color_temperature": 0.488,
+        "is_primary": false,
+        "position": [
+          223,
+          880
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.478,
+        "is_primary": false,
+        "position": [
+          190,
+          736
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          192,
+          782
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          194,
+          191
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          195,
+          205
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.856,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          195,
+          783
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.862,
+        "color_temperature": 0.478,
+        "is_primary": false,
+        "position": [
+          196,
+          922
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          198,
+          188
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          197,
+          191
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          196,
+          212
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          196,
+          220
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          197,
+          861
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.872,
+        "color_temperature": 0.481,
+        "is_primary": false,
+        "position": [
+          198,
+          1020
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          199,
+          215
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.86,
+        "color_temperature": 0.477,
+        "is_primary": false,
+        "position": [
+          199,
+          911
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.86,
+        "color_temperature": 0.483,
+        "is_primary": false,
+        "position": [
+          204,
+          954
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.861,
+        "color_temperature": 0.478,
+        "is_primary": false,
+        "position": [
+          221,
+          550
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.868,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          223,
+          1064
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          223,
+          0
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.475,
+        "is_primary": false,
+        "position": [
+          223,
+          4
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.484,
+        "is_primary": false,
+        "position": [
+          228,
+          887
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.483,
+        "is_primary": false,
+        "position": [
+          234,
+          883
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.907,
+        "color_temperature": 0.494,
+        "is_primary": false,
+        "position": [
+          236,
+          754
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          239,
+          208
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.852,
+        "color_temperature": 0.477,
+        "is_primary": false,
+        "position": [
+          241,
+          964
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          241,
+          970
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.474,
+        "is_primary": false,
+        "position": [
+          241,
+          1008
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.874,
+        "color_temperature": 0.479,
+        "is_primary": false,
+        "position": [
+          244,
+          945
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          243,
+          999
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          242,
+          1004
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.474,
+        "is_primary": false,
+        "position": [
+          244,
+          1009
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.475,
+        "is_primary": false,
+        "position": [
+          245,
+          91
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.852,
+        "color_temperature": 0.477,
+        "is_primary": false,
+        "position": [
+          244,
+          953
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.475,
+        "is_primary": false,
+        "position": [
+          249,
+          83
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          249,
+          74
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.914,
+        "color_temperature": 0.492,
+        "is_primary": false,
+        "position": [
+          248,
+          773
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.477,
+        "is_primary": false,
+        "position": [
+          251,
+          893
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.89,
+        "color_temperature": 0.489,
+        "is_primary": false,
+        "position": [
+          253,
+          776
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          252,
+          936
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.467,
+        "is_primary": false,
+        "position": [
+          253,
+          1076
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.877,
+        "color_temperature": 0.48,
+        "is_primary": false,
+        "position": [
+          257,
+          698
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.914,
+        "color_temperature": 0.489,
+        "is_primary": false,
+        "position": [
+          260,
+          744
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.892,
+        "color_temperature": 0.487,
+        "is_primary": false,
+        "position": [
+          254,
+          759
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.875,
+        "color_temperature": 0.479,
+        "is_primary": false,
+        "position": [
+          261,
+          962
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.474,
+        "is_primary": false,
+        "position": [
+          257,
+          691
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.856,
+        "color_temperature": 0.477,
+        "is_primary": false,
+        "position": [
+          257,
+          728
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.882,
+        "color_temperature": 0.489,
+        "is_primary": false,
+        "position": [
+          257,
+          778
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          257,
+          1072
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.475,
+        "is_primary": false,
+        "position": [
+          259,
+          707
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          258,
+          710
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          259,
+          858
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.856,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          261,
+          1005
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.86,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          259,
+          1050
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.858,
+        "color_temperature": 0.471,
+        "is_primary": false,
+        "position": [
+          259,
+          1056
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          260,
+          1064
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.852,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          258,
+          1069
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.856,
+        "color_temperature": 0.475,
+        "is_primary": false,
+        "position": [
+          261,
+          1011
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          260,
+          1070
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.474,
+        "is_primary": false,
+        "position": [
+          265,
+          548
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.87,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          263,
+          665
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.864,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          262,
+          689
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.862,
+        "color_temperature": 0.468,
+        "is_primary": false,
+        "position": [
+          265,
+          512
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.857,
+        "color_temperature": 0.469,
+        "is_primary": false,
+        "position": [
+          266,
+          530
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.852,
+        "color_temperature": 0.47,
+        "is_primary": false,
+        "position": [
+          265,
+          559
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.878,
+        "color_temperature": 0.478,
+        "is_primary": false,
+        "position": [
+          265,
+          652
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.883,
+        "color_temperature": 0.483,
+        "is_primary": false,
+        "position": [
+          267,
+          790
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.472,
+        "is_primary": false,
+        "position": [
+          264,
+          926
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.858,
+        "color_temperature": 0.473,
+        "is_primary": false,
+        "position": [
+          264,
+          991
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.489,
+        "is_primary": false,
+        "position": [
+          291,
+          408
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.487,
+        "is_primary": false,
+        "position": [
+          290,
+          433
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.864,
+        "color_temperature": 0.487,
+        "is_primary": false,
+        "position": [
+          292,
+          437
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.464,
+        "is_primary": false,
+        "position": [
+          290,
+          529
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.501,
+        "is_primary": false,
+        "position": [
+          292,
+          178
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.878,
+        "color_temperature": 0.507,
+        "is_primary": false,
+        "position": [
+          294,
+          181
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.875,
+        "color_temperature": 0.493,
+        "is_primary": false,
+        "position": [
+          294,
+          351
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.485,
+        "is_primary": false,
+        "position": [
+          294,
+          356
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.866,
+        "color_temperature": 0.492,
+        "is_primary": false,
+        "position": [
+          297,
+          420
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.479,
+        "is_primary": false,
+        "position": [
+          295,
+          442
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.504,
+        "is_primary": false,
+        "position": [
+          297,
+          181
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.491,
+        "is_primary": false,
+        "position": [
+          299,
+          426
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.865,
+        "color_temperature": 0.523,
+        "is_primary": false,
+        "position": [
+          301,
+          157
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.878,
+        "color_temperature": 0.493,
+        "is_primary": false,
+        "position": [
+          302,
+          445
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.858,
+        "color_temperature": 0.486,
+        "is_primary": false,
+        "position": [
+          300,
+          451
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.488,
+        "is_primary": false,
+        "position": [
+          300,
+          479
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.858,
+        "color_temperature": 0.484,
+        "is_primary": false,
+        "position": [
+          301,
+          484
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.865,
+        "color_temperature": 0.484,
+        "is_primary": false,
+        "position": [
+          301,
+          491
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.503,
+        "is_primary": false,
+        "position": [
+          302,
+          162
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          303,
+          499
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.895,
+        "color_temperature": 0.491,
+        "is_primary": false,
+        "position": [
+          306,
+          476
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.854,
+        "color_temperature": 0.477,
+        "is_primary": false,
+        "position": [
+          305,
+          507
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.485,
+        "is_primary": false,
+        "position": [
+          305,
+          510
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.875,
+        "color_temperature": 0.476,
+        "is_primary": false,
+        "position": [
+          305,
+          536
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.486,
+        "is_primary": false,
+        "position": [
+          304,
+          542
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.887,
+        "color_temperature": 0.498,
+        "is_primary": false,
+        "position": [
+          307,
+          442
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.952,
+        "color_temperature": 0.495,
+        "is_primary": false,
+        "position": [
+          307,
+          531
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.493,
+        "is_primary": false,
+        "position": [
+          307,
+          547
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.491,
+        "is_primary": false,
+        "position": [
+          308,
+          446
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.873,
+        "color_temperature": 0.491,
+        "is_primary": false,
+        "position": [
+          308,
+          534
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.9,
+        "color_temperature": 0.492,
+        "is_primary": false,
+        "position": [
+          313,
+          494
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.865,
+        "color_temperature": 0.495,
+        "is_primary": false,
+        "position": [
+          312,
+          544
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.492,
+        "is_primary": false,
+        "position": [
+          314,
+          492
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.486,
+        "is_primary": false,
+        "position": [
+          335,
+          974
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.891,
+        "color_temperature": 0.481,
+        "is_primary": false,
+        "position": [
+          337,
+          917
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.885,
+        "color_temperature": 0.483,
+        "is_primary": false,
+        "position": [
+          337,
+          925
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.875,
+        "color_temperature": 0.481,
+        "is_primary": false,
+        "position": [
+          337,
+          934
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.888,
+        "color_temperature": 0.483,
+        "is_primary": false,
+        "position": [
+          336,
+          938
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.883,
+        "color_temperature": 0.483,
+        "is_primary": false,
+        "position": [
+          339,
+          853
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.883,
+        "color_temperature": 0.484,
+        "is_primary": false,
+        "position": [
+          339,
+          866
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.894,
+        "color_temperature": 0.49,
+        "is_primary": false,
+        "position": [
+          339,
+          885
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.873,
+        "color_temperature": 0.484,
+        "is_primary": false,
+        "position": [
+          338,
+          891
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.489,
+        "is_primary": false,
+        "position": [
+          338,
+          897
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.894,
+        "color_temperature": 0.483,
+        "is_primary": false,
+        "position": [
+          338,
+          900
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.906,
+        "color_temperature": 0.485,
+        "is_primary": false,
+        "position": [
+          338,
+          904
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.49,
+        "is_primary": false,
+        "position": [
+          341,
+          813
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.909,
+        "color_temperature": 0.49,
+        "is_primary": false,
+        "position": [
+          341,
+          818
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.493,
+        "is_primary": false,
+        "position": [
+          340,
+          833
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.888,
+        "color_temperature": 0.484,
+        "is_primary": false,
+        "position": [
+          340,
+          840
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.897,
+        "color_temperature": 0.485,
+        "is_primary": false,
+        "position": [
+          340,
+          844
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.889,
+        "color_temperature": 0.491,
+        "is_primary": false,
+        "position": [
+          342,
+          796
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.928,
+        "color_temperature": 0.49,
+        "is_primary": false,
+        "position": [
+          346,
+          730
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.906,
+        "color_temperature": 0.49,
+        "is_primary": false,
+        "position": [
+          345,
+          739
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.922,
+        "color_temperature": 0.49,
+        "is_primary": false,
+        "position": [
+          348,
+          687
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.489,
+        "is_primary": false,
+        "position": [
+          350,
+          698
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.524,
+        "is_primary": false,
+        "position": [
+          423,
+          592
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.528,
+        "is_primary": false,
+        "position": [
+          435,
+          855
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.528,
+        "is_primary": false,
+        "position": [
+          445,
+          304
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.531,
+        "is_primary": false,
+        "position": [
+          448,
+          616
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.523,
+        "is_primary": false,
+        "position": [
+          454,
+          608
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.88,
+        "color_temperature": 0.525,
+        "is_primary": false,
+        "position": [
+          455,
+          612
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.523,
+        "is_primary": false,
+        "position": [
+          458,
+          638
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.884,
+        "color_temperature": 0.544,
+        "is_primary": false,
+        "position": [
+          466,
+          305
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.533,
+        "is_primary": false,
+        "position": [
+          466,
+          316
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.52,
+        "is_primary": false,
+        "position": [
+          473,
+          265
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.531,
+        "is_primary": false,
+        "position": [
+          477,
+          716
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.857,
+        "color_temperature": 0.529,
+        "is_primary": false,
+        "position": [
+          489,
+          304
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.539,
+        "is_primary": false,
+        "position": [
+          493,
+          650
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.546,
+        "is_primary": false,
+        "position": [
+          497,
+          324
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.89,
+        "color_temperature": 0.559,
+        "is_primary": false,
+        "position": [
+          506,
+          650
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.524,
+        "is_primary": false,
+        "position": [
+          511,
+          612
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.889,
+        "color_temperature": 0.522,
+        "is_primary": false,
+        "position": [
+          513,
+          615
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.501,
+        "is_primary": false,
+        "position": [
+          518,
+          964
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.5,
+        "is_primary": false,
+        "position": [
+          519,
+          971
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.537,
+        "is_primary": false,
+        "position": [
+          520,
+          518
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.886,
+        "color_temperature": 0.529,
+        "is_primary": false,
+        "position": [
+          524,
+          582
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.894,
+        "color_temperature": 0.512,
+        "is_primary": false,
+        "position": [
+          528,
+          893
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.878,
+        "color_temperature": 0.524,
+        "is_primary": false,
+        "position": [
+          530,
+          614
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.884,
+        "color_temperature": 0.535,
+        "is_primary": false,
+        "position": [
+          531,
+          619
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.875,
+        "color_temperature": 0.53,
+        "is_primary": false,
+        "position": [
+          533,
+          680
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.869,
+        "color_temperature": 0.547,
+        "is_primary": false,
+        "position": [
+          536,
+          524
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.882,
+        "color_temperature": 0.529,
+        "is_primary": false,
+        "position": [
+          537,
+          619
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.875,
+        "color_temperature": 0.535,
+        "is_primary": false,
+        "position": [
+          536,
+          622
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.904,
+        "color_temperature": 0.523,
+        "is_primary": false,
+        "position": [
+          537,
+          867
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.883,
+        "color_temperature": 0.503,
+        "is_primary": false,
+        "position": [
+          542,
+          858
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.894,
+        "color_temperature": 0.532,
+        "is_primary": false,
+        "position": [
+          545,
+          617
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.944,
+        "color_temperature": 0.505,
+        "is_primary": false,
+        "position": [
+          546,
+          978
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.899,
+        "color_temperature": 0.518,
+        "is_primary": false,
+        "position": [
+          546,
+          681
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.522,
+        "is_primary": false,
+        "position": [
+          547,
+          780
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.504,
+        "is_primary": false,
+        "position": [
+          547,
+          973
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.902,
+        "color_temperature": 0.509,
+        "is_primary": false,
+        "position": [
+          551,
+          263
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.938,
+        "color_temperature": 0.505,
+        "is_primary": false,
+        "position": [
+          555,
+          368
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.517,
+        "is_primary": false,
+        "position": [
+          555,
+          372
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.515,
+        "is_primary": false,
+        "position": [
+          554,
+          812
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.894,
+        "color_temperature": 0.518,
+        "is_primary": false,
+        "position": [
+          557,
+          320
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.893,
+        "color_temperature": 0.507,
+        "is_primary": false,
+        "position": [
+          559,
+          313
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.521,
+        "is_primary": false,
+        "position": [
+          559,
+          368
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.957,
+        "color_temperature": 0.51,
+        "is_primary": false,
+        "position": [
+          559,
+          944
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.933,
+        "color_temperature": 0.509,
+        "is_primary": false,
+        "position": [
+          559,
+          992
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.941,
+        "color_temperature": 0.509,
+        "is_primary": false,
+        "position": [
+          559,
+          1001
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.857,
+        "color_temperature": 0.518,
+        "is_primary": false,
+        "position": [
+          561,
+          263
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.512,
+        "is_primary": false,
+        "position": [
+          561,
+          299
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.89,
+        "color_temperature": 0.52,
+        "is_primary": false,
+        "position": [
+          560,
+          302
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.537,
+        "is_primary": false,
+        "position": [
+          561,
+          541
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.91,
+        "color_temperature": 0.519,
+        "is_primary": false,
+        "position": [
+          561,
+          746
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.516,
+        "is_primary": false,
+        "position": [
+          560,
+          785
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.878,
+        "color_temperature": 0.517,
+        "is_primary": false,
+        "position": [
+          560,
+          940
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.875,
+        "color_temperature": 0.52,
+        "is_primary": false,
+        "position": [
+          562,
+          307
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.539,
+        "is_primary": false,
+        "position": [
+          562,
+          382
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.52,
+        "is_primary": false,
+        "position": [
+          563,
+          934
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.882,
+        "color_temperature": 0.52,
+        "is_primary": false,
+        "position": [
+          563,
+          938
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.529,
+        "is_primary": false,
+        "position": [
+          568,
+          723
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.888,
+        "color_temperature": 0.521,
+        "is_primary": false,
+        "position": [
+          571,
+          227
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.519,
+        "is_primary": false,
+        "position": [
+          570,
+          436
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.894,
+        "color_temperature": 0.525,
+        "is_primary": false,
+        "position": [
+          570,
+          719
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.892,
+        "color_temperature": 0.538,
+        "is_primary": false,
+        "position": [
+          570,
+          765
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.888,
+        "color_temperature": 0.528,
+        "is_primary": false,
+        "position": [
+          574,
+          460
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.529,
+        "is_primary": false,
+        "position": [
+          578,
+          189
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.513,
+        "is_primary": false,
+        "position": [
+          579,
+          319
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.882,
+        "color_temperature": 0.525,
+        "is_primary": false,
+        "position": [
+          581,
+          484
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.899,
+        "color_temperature": 0.531,
+        "is_primary": false,
+        "position": [
+          583,
+          191
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.886,
+        "color_temperature": 0.534,
+        "is_primary": false,
+        "position": [
+          585,
+          160
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.898,
+        "color_temperature": 0.518,
+        "is_primary": false,
+        "position": [
+          585,
+          659
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.888,
+        "color_temperature": 0.544,
+        "is_primary": false,
+        "position": [
+          587,
+          189
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.55,
+        "is_primary": false,
+        "position": [
+          586,
+          251
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.91,
+        "color_temperature": 0.514,
+        "is_primary": false,
+        "position": [
+          586,
+          655
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.915,
+        "color_temperature": 0.511,
+        "is_primary": false,
+        "position": [
+          593,
+          399
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.501,
+        "is_primary": false,
+        "position": [
+          593,
+          591
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.514,
+        "is_primary": false,
+        "position": [
+          594,
+          396
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.906,
+        "color_temperature": 0.523,
+        "is_primary": false,
+        "position": [
+          599,
+          396
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.884,
+        "color_temperature": 0.502,
+        "is_primary": false,
+        "position": [
+          599,
+          1043
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.538,
+        "is_primary": false,
+        "position": [
+          601,
+          498
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.544,
+        "is_primary": false,
+        "position": [
+          604,
+          501
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.902,
+        "color_temperature": 0.546,
+        "is_primary": false,
+        "position": [
+          605,
+          20
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.542,
+        "is_primary": false,
+        "position": [
+          604,
+          505
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.506,
+        "is_primary": false,
+        "position": [
+          604,
+          1071
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.875,
+        "color_temperature": 0.55,
+        "is_primary": false,
+        "position": [
+          607,
+          25
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.878,
+        "color_temperature": 0.501,
+        "is_primary": false,
+        "position": [
+          607,
+          906
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.542,
+        "is_primary": false,
+        "position": [
+          607,
+          1002
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.504,
+        "is_primary": false,
+        "position": [
+          610,
+          690
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.509,
+        "is_primary": false,
+        "position": [
+          608,
+          797
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.544,
+        "is_primary": false,
+        "position": [
+          609,
+          1000
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.54,
+        "is_primary": false,
+        "position": [
+          609,
+          1077
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.927,
+        "color_temperature": 0.517,
+        "is_primary": false,
+        "position": [
+          611,
+          83
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.506,
+        "is_primary": false,
+        "position": [
+          611,
+          685
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.927,
+        "color_temperature": 0.517,
+        "is_primary": false,
+        "position": [
+          612,
+          75
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.528,
+        "is_primary": false,
+        "position": [
+          612,
+          79
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.878,
+        "color_temperature": 0.511,
+        "is_primary": false,
+        "position": [
+          612,
+          563
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.532,
+        "is_primary": false,
+        "position": [
+          615,
+          0
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.527,
+        "is_primary": false,
+        "position": [
+          614,
+          88
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.501,
+        "is_primary": false,
+        "position": [
+          614,
+          563
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.504,
+        "is_primary": false,
+        "position": [
+          614,
+          1082
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.886,
+        "color_temperature": 0.516,
+        "is_primary": false,
+        "position": [
+          617,
+          986
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.906,
+        "color_temperature": 0.521,
+        "is_primary": false,
+        "position": [
+          617,
+          995
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.937,
+        "color_temperature": 0.508,
+        "is_primary": false,
+        "position": [
+          618,
+          65
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.882,
+        "color_temperature": 0.531,
+        "is_primary": false,
+        "position": [
+          618,
+          558
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.921,
+        "color_temperature": 0.517,
+        "is_primary": false,
+        "position": [
+          621,
+          410
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.888,
+        "color_temperature": 0.512,
+        "is_primary": false,
+        "position": [
+          621,
+          854
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.861,
+        "color_temperature": 0.503,
+        "is_primary": false,
+        "position": [
+          622,
+          868
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.54,
+        "is_primary": false,
+        "position": [
+          625,
+          177
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.91,
+        "color_temperature": 0.518,
+        "is_primary": false,
+        "position": [
+          627,
+          445
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.857,
+        "color_temperature": 0.548,
+        "is_primary": false,
+        "position": [
+          628,
+          501
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.915,
+        "color_temperature": 0.514,
+        "is_primary": false,
+        "position": [
+          627,
+          573
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.89,
+        "color_temperature": 0.526,
+        "is_primary": false,
+        "position": [
+          629,
+          442
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.869,
+        "color_temperature": 0.524,
+        "is_primary": false,
+        "position": [
+          629,
+          576
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.511,
+        "is_primary": false,
+        "position": [
+          629,
+          579
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.886,
+        "color_temperature": 0.524,
+        "is_primary": false,
+        "position": [
+          632,
+          171
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.921,
+        "color_temperature": 0.51,
+        "is_primary": false,
+        "position": [
+          633,
+          563
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.527,
+        "is_primary": false,
+        "position": [
+          635,
+          519
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.9,
+        "color_temperature": 0.52,
+        "is_primary": false,
+        "position": [
+          638,
+          563
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.522,
+        "is_primary": false,
+        "position": [
+          641,
+          172
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.55,
+        "is_primary": false,
+        "position": [
+          642,
+          268
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.876,
+        "color_temperature": 0.52,
+        "is_primary": false,
+        "position": [
+          643,
+          481
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.55,
+        "is_primary": false,
+        "position": [
+          645,
+          143
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.501,
+        "is_primary": false,
+        "position": [
+          645,
+          655
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.861,
+        "color_temperature": 0.547,
+        "is_primary": false,
+        "position": [
+          647,
+          248
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.552,
+        "is_primary": false,
+        "position": [
+          648,
+          33
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.919,
+        "color_temperature": 0.511,
+        "is_primary": false,
+        "position": [
+          650,
+          599
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.929,
+        "color_temperature": 0.515,
+        "is_primary": false,
+        "position": [
+          651,
+          423
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.91,
+        "color_temperature": 0.516,
+        "is_primary": false,
+        "position": [
+          652,
+          428
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.853,
+        "color_temperature": 0.5,
+        "is_primary": false,
+        "position": [
+          652,
+          539
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.883,
+        "color_temperature": 0.509,
+        "is_primary": false,
+        "position": [
+          654,
+          715
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.537,
+        "is_primary": false,
+        "position": [
+          655,
+          245
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.884,
+        "color_temperature": 0.518,
+        "is_primary": false,
+        "position": [
+          654,
+          431
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.886,
+        "color_temperature": 0.529,
+        "is_primary": false,
+        "position": [
+          657,
+          244
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.551,
+        "is_primary": false,
+        "position": [
+          657,
+          362
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.875,
+        "color_temperature": 0.522,
+        "is_primary": false,
+        "position": [
+          659,
+          640
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.898,
+        "color_temperature": 0.528,
+        "is_primary": false,
+        "position": [
+          661,
+          431
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.544,
+        "is_primary": false,
+        "position": [
+          663,
+          53
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.873,
+        "color_temperature": 0.548,
+        "is_primary": false,
+        "position": [
+          662,
+          151
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.892,
+        "color_temperature": 0.538,
+        "is_primary": false,
+        "position": [
+          662,
+          236
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.878,
+        "color_temperature": 0.502,
+        "is_primary": false,
+        "position": [
+          662,
+          403
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.861,
+        "color_temperature": 0.527,
+        "is_primary": false,
+        "position": [
+          662,
+          501
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.915,
+        "color_temperature": 0.508,
+        "is_primary": false,
+        "position": [
+          663,
+          532
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.93,
+        "color_temperature": 0.509,
+        "is_primary": false,
+        "position": [
+          663,
+          543
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.543,
+        "is_primary": false,
+        "position": [
+          664,
+          56
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.52,
+        "is_primary": false,
+        "position": [
+          664,
+          504
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.936,
+        "color_temperature": 0.508,
+        "is_primary": false,
+        "position": [
+          665,
+          525
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.864,
+        "color_temperature": 0.554,
+        "is_primary": false,
+        "position": [
+          671,
+          148
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.532,
+        "is_primary": false,
+        "position": [
+          673,
+          492
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.542,
+        "is_primary": false,
+        "position": [
+          673,
+          507
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.908,
+        "color_temperature": 0.519,
+        "is_primary": false,
+        "position": [
+          673,
+          1066
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.511,
+        "is_primary": false,
+        "position": [
+          675,
+          409
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.871,
+        "color_temperature": 0.535,
+        "is_primary": false,
+        "position": [
+          680,
+          805
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.937,
+        "color_temperature": 0.519,
+        "is_primary": false,
+        "position": [
+          682,
+          1005
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.855,
+        "color_temperature": 0.539,
+        "is_primary": false,
+        "position": [
+          684,
+          142
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.958,
+        "color_temperature": 0.508,
+        "is_primary": false,
+        "position": [
+          689,
+          394
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.538,
+        "is_primary": false,
+        "position": [
+          687,
+          803
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.878,
+        "color_temperature": 0.531,
+        "is_primary": false,
+        "position": [
+          690,
+          802
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.936,
+        "color_temperature": 0.51,
+        "is_primary": false,
+        "position": [
+          691,
+          905
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.882,
+        "color_temperature": 0.503,
+        "is_primary": false,
+        "position": [
+          694,
+          566
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.898,
+        "color_temperature": 0.532,
+        "is_primary": false,
+        "position": [
+          701,
+          799
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.878,
+        "color_temperature": 0.523,
+        "is_primary": false,
+        "position": [
+          697,
+          838
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.859,
+        "color_temperature": 0.508,
+        "is_primary": false,
+        "position": [
+          699,
+          336
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.546,
+        "is_primary": false,
+        "position": [
+          699,
+          1004
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.873,
+        "color_temperature": 0.539,
+        "is_primary": false,
+        "position": [
+          698,
+          1045
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.89,
+        "color_temperature": 0.541,
+        "is_primary": false,
+        "position": [
+          700,
+          36
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.895,
+        "color_temperature": 0.537,
+        "is_primary": false,
+        "position": [
+          704,
+          844
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.863,
+        "color_temperature": 0.542,
+        "is_primary": false,
+        "position": [
+          700,
+          987
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.925,
+        "color_temperature": 0.529,
+        "is_primary": false,
+        "position": [
+          709,
+          958
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.921,
+        "color_temperature": 0.533,
+        "is_primary": false,
+        "position": [
+          708,
+          964
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.898,
+        "color_temperature": 0.534,
+        "is_primary": false,
+        "position": [
+          711,
+          797
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.898,
+        "color_temperature": 0.54,
+        "is_primary": false,
+        "position": [
+          713,
+          852
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.548,
+        "is_primary": false,
+        "position": [
+          714,
+          422
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.851,
+        "color_temperature": 0.55,
+        "is_primary": false,
+        "position": [
+          715,
+          424
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.876,
+        "color_temperature": 0.536,
+        "is_primary": false,
+        "position": [
+          714,
+          797
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.875,
+        "color_temperature": 0.532,
+        "is_primary": false,
+        "position": [
+          717,
+          796
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.96,
+        "color_temperature": 0.509,
+        "is_primary": false,
+        "position": [
+          719,
+          842
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.959,
+        "color_temperature": 0.509,
+        "is_primary": false,
+        "position": [
+          720,
+          853
+        ]
+      },
+      {
+        "type": "point",
+        "intensity": 0.867,
+        "color_temperature": 0.537,
+        "is_primary": false,
+        "position": [
+          716,
+          856
+        ]
+      }
+    ],
+    "painting_order": [
+      "Bright Sky",
+      "Ground",
+      "Grass"
+    ],
+    "notes": [
+      "Scene type: landscape",
+      "Multiple point light sources - consider each light's influence",
+      "Backlit scene: Foreground subjects will be silhouetted",
+      "Establish bright background first, then dark silhouettes"
+    ]
+  }
+}

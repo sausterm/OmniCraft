@@ -49,7 +49,7 @@ export default function PreviewPage() {
   }, [jobId]);
 
   const handleCheckout = useCallback(
-    async (selectedProductIds: string[]) => {
+    async (selectedProductIds: string[], email: string) => {
       setIsCheckingOut(true);
       setError(null);
 
@@ -60,6 +60,7 @@ export default function PreviewPage() {
         const { checkout_url, session_id } = await api.createCheckout(
           jobId,
           selectedProductIds,
+          email,
           successUrl,
           cancelUrl
         );
@@ -194,7 +195,7 @@ export default function PreviewPage() {
                 onCheckout={handleCheckout}
                 isLoading={isCheckingOut}
                 jobId={jobId}
-                onPromoApplied={(tier) => setPromoApplied(true)}
+                onPromoApplied={() => setPromoApplied(true)}
               />
             </div>
           </div>

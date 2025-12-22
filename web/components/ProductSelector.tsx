@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Check, ShoppingCart, Loader2, Tag, Gift, Sparkles } from 'lucide-react';
+import { Check, ShoppingCart, Loader2, Tag, Gift, Sparkles, Mail } from 'lucide-react';
 import type { Product } from '@/lib/api';
 import api from '@/lib/api';
 
 interface ProductSelectorProps {
   products: Product[];
-  onCheckout: (selectedProductIds: string[]) => void;
+  onCheckout: (selectedProductIds: string[], email: string) => void;
   isLoading?: boolean;
   jobId?: string;
   onPromoApplied?: (tier: string) => void;
@@ -26,6 +26,8 @@ export default function ProductSelector({
   const [promoSuccess, setPromoSuccess] = useState<string | null>(null);
   const [isValidatingPromo, setIsValidatingPromo] = useState(false);
   const [promoApplied, setPromoApplied] = useState(false);
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   // Auto-select free products
   useEffect(() => {
@@ -88,8 +90,25 @@ export default function ProductSelector({
     return `$${(cents / 100).toFixed(2)}`;
   };
 
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
   const handleCheckout = () => {
-    onCheckout(Array.from(selectedIds));
+    setEmailError(null);
+
+    if (!email.trim()) {
+      setEmailError('Email is required');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+
+    onCheckout(Array.from(selectedIds), email);
   };
 
   // Separate tiers from add-ons
@@ -276,8 +295,37 @@ export default function ProductSelector({
         </div>
       )}
 
-      {/* Checkout Button */}
+      {/* Email Input */}
       <div className="border-t border-gray-200 pt-4">
+        <label className="block">
+          <div className="flex items-center gap-2 mb-2">
+            <Mail className="w-4 h-4 text-gray-500" />
+            <span className="font-medium text-gray-900">Your Email</span>
+          </div>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setEmailError(null);
+            }}
+            placeholder="you@example.com"
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
+              emailError ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            }`}
+            disabled={isLoading}
+          />
+          {emailError && (
+            <p className="text-red-600 text-sm mt-1">{emailError}</p>
+          )}
+          <p className="text-xs text-gray-500 mt-1">
+            We'll send your painting guide and login link here
+          </p>
+        </label>
+      </div>
+
+      {/* Checkout Button */}
+      <div className="pt-4">
         <div className="flex items-center justify-between mb-4">
           <span className="text-gray-600">Total</span>
           <span className="text-2xl font-bold text-gray-900">
@@ -290,7 +338,7 @@ export default function ProductSelector({
         </div>
         <button
           onClick={handleCheckout}
-          disabled={selectedIds.size === 0 || isLoading}
+          disabled={selectedIds.size === 0 || isLoading || !email.trim()}
           className={`w-full py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl font-semibold transition-all ${
             promoApplied
               ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white'

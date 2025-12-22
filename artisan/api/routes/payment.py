@@ -11,6 +11,7 @@ from ..models.schemas import (
     CheckoutRequest,
     CheckoutResponse,
 )
+from ..services.email import email_service
 from .upload import jobs_db
 from .download import mark_purchased
 
@@ -51,6 +52,13 @@ async def create_checkout(request: CheckoutRequest):
     if job["status"] != JobStatus.COMPLETED:
         raise HTTPException(status_code=400, detail="Job not completed")
 
+    # Store email with job
+    import re
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", request.email):
+        raise HTTPException(status_code=400, detail="Invalid email format")
+
+    jobs_db[request.job_id]["email"] = request.email
+
     # Validate products
     line_items = []
     for product_id in request.product_ids:
@@ -78,6 +86,15 @@ async def create_checkout(request: CheckoutRequest):
     if not line_items:
         # All free products - mark as purchased and return
         mark_purchased(request.job_id, request.product_ids)
+
+        # Send confirmation email
+        email_service.send_purchase_confirmation(
+            to_email=request.email,
+            job_id=request.job_id,
+            products=request.product_ids,
+            is_promo=True,
+        )
+
         return CheckoutResponse(
             checkout_url=request.success_url or settings.stripe_success_url.format(job_id=request.job_id),
             session_id="free",
@@ -93,11 +110,13 @@ async def create_checkout(request: CheckoutRequest):
             payment_method_types=["card"],
             line_items=line_items,
             mode="payment",
+            customer_email=request.email,  # Pre-fill email for Stripe receipt
             success_url=success_url + "?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=cancel_url,
             metadata={
                 "job_id": request.job_id,
                 "product_ids": ",".join(request.product_ids),
+                "email": request.email,
             },
         )
 
@@ -155,11 +174,21 @@ async def stripe_webhook(
         job_id = session.get("metadata", {}).get("job_id")
         product_ids_str = session.get("metadata", {}).get("product_ids", "")
         product_ids = product_ids_str.split(",") if product_ids_str else []
+        email = session.get("metadata", {}).get("email") or session.get("customer_email")
 
         if job_id and product_ids:
             # Mark products as purchased
             mark_purchased(job_id, product_ids)
             print(f"Payment successful for job {job_id}: {product_ids}")
+
+            # Send confirmation email
+            if email:
+                email_service.send_purchase_confirmation(
+                    to_email=email,
+                    job_id=job_id,
+                    products=product_ids,
+                    is_promo=False,
+                )
 
     elif event["type"] == "payment_intent.payment_failed":
         intent = event["data"]["object"]

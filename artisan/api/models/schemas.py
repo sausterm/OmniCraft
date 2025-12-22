@@ -124,6 +124,10 @@ class CheckoutRequest(BaseModel):
         min_length=1,
         description="List of product IDs to purchase"
     )
+    email: str = Field(
+        ...,
+        description="Customer email for receipt and login"
+    )
     success_url: Optional[str] = None
     cancel_url: Optional[str] = None
 

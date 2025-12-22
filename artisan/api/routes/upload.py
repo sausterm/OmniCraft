@@ -106,6 +106,8 @@ async def upload_image(
         "progress": 0.0,
         "error": None,
         "results": None,
+        "email": None,  # User email for login/receipts
+        "user_id": None,  # Linked user account (after login)
     }
 
     return UploadResponse(
@@ -141,6 +143,44 @@ async def get_job(job_id: str):
         num_regions=job.get("results", {}).get("num_regions") if job.get("results") else None,
         num_substeps=job.get("results", {}).get("num_substeps") if job.get("results") else None,
         preview_url=job.get("preview_url"),
+    )
+
+
+class UpdateEmailRequest(BaseModel):
+    """Request to update job email."""
+    email: str
+
+
+class UpdateEmailResponse(BaseModel):
+    """Response after updating email."""
+    job_id: str
+    email: str
+    message: str
+
+
+@router.patch("/job/{job_id}/email", response_model=UpdateEmailResponse)
+async def update_job_email(job_id: str, request: UpdateEmailRequest):
+    """
+    Update the email associated with a job.
+
+    - **job_id**: The job ID
+    - **email**: User's email address
+    """
+    if job_id not in jobs_db:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    # Basic email validation
+    import re
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", request.email):
+        raise HTTPException(status_code=400, detail="Invalid email format")
+
+    jobs_db[job_id]["email"] = request.email
+    jobs_db[job_id]["updated_at"] = datetime.utcnow()
+
+    return UpdateEmailResponse(
+        job_id=job_id,
+        email=request.email,
+        message="Email updated successfully"
     )
 
 
