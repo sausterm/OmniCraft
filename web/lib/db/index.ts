@@ -31,6 +31,18 @@ sqlite.exec(`
     email TEXT NOT NULL UNIQUE,
     emailVerified INTEGER,
     image TEXT,
+    credits INTEGER NOT NULL DEFAULT 100,
+    created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+  );
+
+
+  CREATE TABLE IF NOT EXISTS credit_transactions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    amount INTEGER NOT NULL,
+    type TEXT NOT NULL,
+    description TEXT,
+    reference_id TEXT,
     created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
   );
 
@@ -82,5 +94,38 @@ sqlite.exec(`
     created_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
   );
 `);
+
+// Migration: Add credits column to existing users table
+try {
+  sqlite.exec(`ALTER TABLE users ADD COLUMN credits INTEGER NOT NULL DEFAULT 100`);
+  console.log("Added credits column to users table");
+} catch {
+  // Column already exists, ignore
+}
+
+// Give existing users their welcome bonus if they don't have any transactions
+try {
+  const existingUsers = sqlite.prepare(`
+    SELECT u.id FROM users u
+    WHERE NOT EXISTS (
+      SELECT 1 FROM credit_transactions ct WHERE ct.user_id = u.id AND ct.type = 'welcome'
+    )
+  `).all() as { id: string }[];
+
+  const insertTx = sqlite.prepare(`
+    INSERT INTO credit_transactions (id, user_id, amount, type, description, created_at)
+    VALUES (?, ?, 100, 'welcome', 'Welcome bonus! Thanks for joining Artisan.', ?)
+  `);
+
+  for (const user of existingUsers) {
+    insertTx.run(`tx_welcome_${user.id}`, user.id, Math.floor(Date.now() / 1000));
+  }
+
+  if (existingUsers.length > 0) {
+    console.log(`Gave welcome bonus to ${existingUsers.length} existing users`);
+  }
+} catch (e) {
+  console.error("Error giving welcome bonus:", e);
+}
 
 export { schema };

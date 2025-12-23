@@ -33,3 +33,12 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+web/data/*.db
+web/data/*.db-*
+
+# Generated outputs and uploads
+artisan/api/outputs/
+artisan/api/uploads/
+artisan/artisan/
+web/data/*.db
+web/data/*.db-*

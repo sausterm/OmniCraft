@@ -61,6 +61,11 @@ class JobResponse(BaseModel):
     num_substeps: Optional[int] = None
     preview_url: Optional[str] = None
 
+    # Style transfer
+    style_status: Optional[str] = None  # not_started, queued, processing, completed, failed
+    style_config: Optional[Dict] = None  # Style settings used
+    styled_image_url: Optional[str] = None  # URL to styled image preview
+
 
 class ProcessResponse(BaseModel):
     """Response after starting processing."""

@@ -1,11 +1,26 @@
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
-import { User, LogOut, Loader2 } from 'lucide-react';
+import { User, LogOut, Loader2, Coins } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 export default function AuthButton() {
   const { data: session, status } = useSession();
+  const [credits, setCredits] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetch('/api/credits')
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data?.credits !== undefined) {
+            setCredits(data.credits);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [session]);
 
   if (status === 'loading') {
     return (
@@ -18,6 +33,12 @@ export default function AuthButton() {
   if (session?.user) {
     return (
       <div className="flex items-center gap-3">
+        {credits !== null && (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-sm font-medium">
+            <Coins className="w-4 h-4" />
+            <span>{credits}</span>
+          </div>
+        )}
         <Link
           href="/dashboard"
           className="flex items-center gap-2 text-gray-700 hover:text-gray-900"

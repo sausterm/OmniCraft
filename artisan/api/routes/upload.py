@@ -108,6 +108,11 @@ async def upload_image(
         "results": None,
         "email": None,  # User email for login/receipts
         "user_id": None,  # Linked user account (after login)
+        # Style transfer fields
+        "styled_image_path": None,  # Path to styled image (if style applied)
+        "style_config": None,  # Style settings used
+        "style_status": None,  # not_started, queued, processing, completed, failed
+        "style_error": None,  # Error message if style transfer failed
     }
 
     return UploadResponse(
@@ -143,6 +148,9 @@ async def get_job(job_id: str):
         num_regions=job.get("results", {}).get("num_regions") if job.get("results") else None,
         num_substeps=job.get("results", {}).get("num_substeps") if job.get("results") else None,
         preview_url=job.get("preview_url"),
+        style_status=job.get("style_status"),
+        style_config=job.get("style_config"),
+        styled_image_url=f"/api/preview/{job_id}/styled" if job.get("styled_image_path") else None,
     )
 
 

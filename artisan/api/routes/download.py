@@ -177,6 +177,57 @@ async def get_preview(job_id: str):
     )
 
 
+@router.get("/preview/{job_id}/styled")
+async def get_styled_preview(job_id: str):
+    """
+    Get styled image preview.
+
+    - **job_id**: The job ID
+    """
+    if job_id not in jobs_db:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    job = jobs_db[job_id]
+
+    styled_path = job.get("styled_image_path")
+    if not styled_path or not os.path.exists(styled_path):
+        raise HTTPException(status_code=404, detail="Styled image not found")
+
+    return FileResponse(
+        styled_path,
+        media_type="image/png",
+        filename=f"styled_{job_id}.png"
+    )
+
+
+@router.get("/preview/{job_id}/original")
+async def get_original_preview(job_id: str):
+    """
+    Get original (unprocessed) image.
+
+    - **job_id**: The job ID
+    """
+    if job_id not in jobs_db:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    job = jobs_db[job_id]
+
+    local_path = job.get("local_path")
+    if not local_path or not os.path.exists(local_path):
+        raise HTTPException(status_code=404, detail="Original image not found")
+
+    # Determine media type from file extension
+    ext = local_path.split('.')[-1].lower()
+    media_types = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp"}
+    media_type = media_types.get(ext, "image/png")
+
+    return FileResponse(
+        local_path,
+        media_type=media_type,
+        filename=f"original_{job_id}.{ext}"
+    )
+
+
 @router.get("/download/{job_id}/{product_id}")
 async def download_product(job_id: str, product_id: str):
     """

@@ -18,6 +18,42 @@ export interface Job {
   filename: string;
   config?: ProcessConfig;
   error?: string;
+  // Style transfer
+  style_status?: 'queued' | 'processing' | 'completed' | 'failed' | null;
+  style_config?: StyleConfig | null;
+  styled_image_url?: string | null;
+}
+
+export interface StyleConfig {
+  style: string;
+  custom_prompt?: string;
+  guidance_scale: number;
+  control_strength: number;
+  num_steps: number;
+  processing_time?: number;
+}
+
+export interface StyleInfo {
+  id: string;
+  name: string;
+  description: string;
+}
+
+export interface StyleTransferRequest {
+  job_id: string;
+  style: string;
+  custom_prompt?: string;
+  guidance_scale?: number;
+  control_strength?: number;
+  num_steps?: number;
+}
+
+export interface StyleTransferResponse {
+  job_id: string;
+  status: string;
+  message: string;
+  style: string;
+  estimated_time_seconds: number;
 }
 
 export interface JobResults {
@@ -286,6 +322,90 @@ class ApiClient {
    */
   async getPaintingGuide(jobId: string): Promise<PaintingGuide> {
     return this.request<PaintingGuide>(`/api/guide/${jobId}`);
+  }
+
+  /**
+   * Get available style presets
+   */
+  async getStyles(): Promise<StyleInfo[]> {
+    const response = await this.request<{ styles: StyleInfo[] }>('/api/styles');
+    return response.styles;
+  }
+
+  /**
+   * Apply style transfer to an image
+   */
+  async applyStyleTransfer(request: StyleTransferRequest): Promise<StyleTransferResponse> {
+    return this.request<StyleTransferResponse>('/api/style-transfer', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    });
+  }
+
+  /**
+   * Get style transfer status
+   */
+  async getStyleTransferStatus(jobId: string): Promise<{
+    job_id: string;
+    style_status: string;
+    style_config?: StyleConfig;
+    styled_image_url?: string;
+    processing_time?: number;
+    error?: string;
+  }> {
+    return this.request(`/api/style-transfer/${jobId}`);
+  }
+
+  /**
+   * Remove style transfer from a job
+   */
+  async removeStyleTransfer(jobId: string): Promise<{ job_id: string; message: string }> {
+    return this.request(`/api/style-transfer/${jobId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Get original image URL
+   */
+  getOriginalImageUrl(jobId: string): string {
+    return `${API_BASE}/api/preview/${jobId}/original`;
+  }
+
+  /**
+   * Get styled image URL
+   */
+  getStyledImageUrl(jobId: string): string {
+    return `${API_BASE}/api/preview/${jobId}/styled`;
+  }
+
+  /**
+   * Poll for style transfer completion
+   */
+  async waitForStyleTransfer(
+    jobId: string,
+    onProgress?: (status: string) => void,
+    maxWaitMs = 600000,  // 10 minutes for style transfer
+    pollIntervalMs = 3000
+  ): Promise<{ styled_image_url?: string; error?: string }> {
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < maxWaitMs) {
+      const result = await this.getStyleTransferStatus(jobId);
+      onProgress?.(result.style_status);
+
+      if (result.style_status === 'completed') {
+        return { styled_image_url: result.styled_image_url };
+      }
+
+      if (result.style_status === 'failed') {
+        return { error: result.error || 'Style transfer failed' };
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+    }
+
+    throw new Error('Style transfer timeout');
   }
 
   /**

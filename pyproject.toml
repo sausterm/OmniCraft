@@ -68,6 +68,8 @@ api = [
     "sqlalchemy>=2.0.0",
     "asyncpg>=0.28.0",  # PostgreSQL async
     "alembic>=1.11.0",  # Database migrations
+    "replicate>=0.20.0",  # Replicate API for style transfer
+    "requests>=2.28.0",  # HTTP client
 ]
 
 # Development dependencies

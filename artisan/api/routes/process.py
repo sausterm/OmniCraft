@@ -54,9 +54,14 @@ def run_processing(job_id: str, config: ProcessConfig):
         job["updated_at"] = datetime.utcnow()
         job["progress"] = 10.0
 
-        # Get input path
-        input_path = job["local_path"]
-        logger.info(f"[{job_id}] Input file: {input_path}")
+        # Get input path - use styled image if available
+        styled_path = job.get("styled_image_path")
+        if styled_path and os.path.exists(styled_path):
+            input_path = styled_path
+            logger.info(f"[{job_id}] Using styled image: {input_path}")
+        else:
+            input_path = job["local_path"]
+            logger.info(f"[{job_id}] Using original image: {input_path}")
 
         # Create output directory
         output_dir = f"artisan/api/outputs/{job_id}"

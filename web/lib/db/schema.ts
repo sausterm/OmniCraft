@@ -7,6 +7,8 @@ export const users = sqliteTable("users", {
   email: text("email").notNull().unique(),
   emailVerified: integer("emailVerified", { mode: "timestamp" }),
   image: text("image"),
+  // Credits system - 100 welcome bonus, earn more by sharing/referring
+  credits: integer("credits").notNull().default(100),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
@@ -51,6 +53,17 @@ export const verificationTokens = sqliteTable(
     pk: primaryKey({ columns: [vt.identifier, vt.token] }),
   })
 );
+
+// Credit transactions - track how credits are earned/spent
+export const creditTransactions = sqliteTable("credit_transactions", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  amount: integer("amount").notNull(), // positive = earned, negative = spent
+  type: text("type").notNull(), // 'welcome', 'referral', 'share', 'generation', 'purchase'
+  description: text("description"),
+  referenceId: text("reference_id"), // job_id, referral_code, etc.
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+});
 
 // Custom tables for Artisan app
 export const jobs = sqliteTable("jobs", {

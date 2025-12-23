@@ -2,12 +2,13 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertCircle, Check } from 'lucide-react';
 import ImageUploader from '@/components/ImageUploader';
 import ConfigPanel from '@/components/ConfigPanel';
+import StyleSelector from '@/components/StyleSelector';
 import api, { ProcessConfig, Job } from '@/lib/api';
 
-type Stage = 'upload' | 'configure' | 'processing';
+type Stage = 'upload' | 'configure' | 'style' | 'processing';
 
 export default function UploadPage() {
   const router = useRouter();
@@ -23,6 +24,8 @@ export default function UploadPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState<string>('Starting...');
+  const [styledImageUrl, setStyledImageUrl] = useState<string | null>(null);
+  const [styleApplied, setStyleApplied] = useState(false);
 
   const handleUpload = useCallback(async (file: File) => {
     setIsUploading(true);
@@ -95,14 +98,15 @@ export default function UploadPage() {
         </div>
 
         {/* Progress Steps */}
-        <div className="flex items-center justify-center mb-8">
-          {['Upload', 'Configure', 'Process'].map((step, index) => {
-            const stepIndex = ['upload', 'configure', 'processing'].indexOf(stage);
+        <div className="flex items-center justify-center mb-8 overflow-x-auto">
+          {['Upload', 'Configure', 'Style', 'Process'].map((step, index) => {
+            const stages: Stage[] = ['upload', 'configure', 'style', 'processing'];
+            const stepIndex = stages.indexOf(stage);
             const isActive = index <= stepIndex;
             const isCurrent = index === stepIndex;
 
             return (
-              <div key={step} className="flex items-center">
+              <div key={step} className="flex items-center flex-shrink-0">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                     isActive
@@ -119,9 +123,9 @@ export default function UploadPage() {
                 >
                   {step}
                 </span>
-                {index < 2 && (
+                {index < 3 && (
                   <div
-                    className={`w-12 h-0.5 mx-4 ${
+                    className={`w-8 sm:w-12 h-0.5 mx-2 sm:mx-4 ${
                       index < stepIndex ? 'bg-primary-600' : 'bg-gray-200'
                     }`}
                   />
@@ -189,13 +193,88 @@ export default function UploadPage() {
                 Change Image
               </button>
               <button
+                onClick={() => setStage('style')}
+                className="btn-primary flex-1"
+                disabled={isProcessing}
+              >
+                Continue to Style
+              </button>
+            </div>
+          </div>
+        )}
+
+        {stage === 'style' && job && (
+          <div className="space-y-6">
+            {/* Image Preview */}
+            <div className="card">
+              <h2 className="font-semibold text-gray-900 mb-4">
+                Step 3: Apply Artistic Style (Optional)
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p className="text-sm text-gray-500 mb-2">Original Image</p>
+                  <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                    <img
+                      src={api.getOriginalImageUrl(job.job_id)}
+                      alt="Original"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                {styledImageUrl && (
+                  <div>
+                    <p className="text-sm text-gray-500 mb-2 flex items-center gap-1">
+                      Styled Image
+                      <Check className="w-4 h-4 text-green-500" />
+                    </p>
+                    <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                      <img
+                        src={styledImageUrl}
+                        alt="Styled"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Style Selector */}
+            <StyleSelector
+              jobId={job.job_id}
+              onStyleApplied={(url) => {
+                setStyledImageUrl(url);
+                setStyleApplied(true);
+              }}
+              onStyleRemoved={() => {
+                setStyledImageUrl(null);
+                setStyleApplied(false);
+              }}
+              currentStyleConfig={styleApplied ? { style: 'applied' } : null}
+            />
+
+            {/* Navigation Buttons */}
+            <div className="flex gap-4">
+              <button
+                onClick={() => setStage('configure')}
+                className="btn-secondary"
+              >
+                Back to Configure
+              </button>
+              <button
                 onClick={handleProcess}
                 className="btn-primary flex-1"
                 disabled={isProcessing}
               >
-                Start Processing
+                {styleApplied ? 'Generate with Style' : 'Skip Style & Generate'}
               </button>
             </div>
+
+            {!styleApplied && (
+              <p className="text-center text-sm text-gray-500">
+                You can skip this step to use your original image without style transfer.
+              </p>
+            )}
           </div>
         )}
 
@@ -203,7 +282,7 @@ export default function UploadPage() {
           <div className="card text-center py-12">
             <Loader2 className="w-12 h-12 text-primary-600 animate-spin mx-auto mb-4" />
             <h2 className="font-semibold text-gray-900 mb-2">
-              Processing Your Image
+              {styleApplied ? 'Processing Your Styled Image' : 'Processing Your Image'}
             </h2>
             <p className="text-gray-600 mb-4">{progress}</p>
             <div className="w-full bg-gray-200 rounded-full h-2 max-w-xs mx-auto">
@@ -212,6 +291,11 @@ export default function UploadPage() {
             <p className="text-sm text-gray-500 mt-4">
               This may take 1-3 minutes depending on image complexity.
             </p>
+            {styleApplied && (
+              <p className="text-xs text-primary-600 mt-2">
+                Using styled image for paint-by-numbers generation
+              </p>
+            )}
           </div>
         )}
       </div>
