@@ -1,8 +1,67 @@
 /**
  * API client for Artisan Paint-by-Numbers backend
+ * Supports primary (local/ngrok) and fallback (cloud) backends
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+// Primary backend (local ngrok tunnel)
+const PRIMARY_API = process.env.NEXT_PUBLIC_API_URL || '';
+// Fallback backend (Modal/Railway cloud)
+const FALLBACK_API = process.env.NEXT_PUBLIC_FALLBACK_API_URL || '';
+
+// Track which backend is active
+let activeBackend: 'primary' | 'fallback' = 'primary';
+let lastHealthCheck = 0;
+const HEALTH_CHECK_INTERVAL = 30000; // 30 seconds
+
+function getApiBase(): string {
+  return activeBackend === 'primary' ? PRIMARY_API : FALLBACK_API;
+}
+
+async function checkBackendHealth(url: string): Promise<boolean> {
+  if (!url) return false;
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    const response = await fetch(`${url}/health`, {
+      signal: controller.signal,
+      headers: { 'ngrok-skip-browser-warning': 'true' },
+    });
+    clearTimeout(timeoutId);
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function ensureHealthyBackend(): Promise<string> {
+  const now = Date.now();
+
+  // Skip health check if we checked recently
+  if (now - lastHealthCheck < HEALTH_CHECK_INTERVAL) {
+    return getApiBase();
+  }
+
+  lastHealthCheck = now;
+
+  // Try primary first
+  if (PRIMARY_API && await checkBackendHealth(PRIMARY_API)) {
+    activeBackend = 'primary';
+    return PRIMARY_API;
+  }
+
+  // Fall back to cloud
+  if (FALLBACK_API && await checkBackendHealth(FALLBACK_API)) {
+    activeBackend = 'fallback';
+    console.log('Switched to fallback backend');
+    return FALLBACK_API;
+  }
+
+  // Return whatever we have
+  return getApiBase();
+}
+
+// Legacy constant for backwards compatibility
+const API_BASE = PRIMARY_API;
 
 export interface ProcessConfig {
   model_size?: 'n' | 's' | 'm' | 'l' | 'x';
@@ -149,7 +208,8 @@ class ApiClient {
     endpoint: string,
     options?: RequestInit
   ): Promise<T> {
-    const response = await fetch(`${API_BASE}${endpoint}`, {
+    const baseUrl = await ensureHealthyBackend();
+    const response = await fetch(`${baseUrl}${endpoint}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -170,10 +230,11 @@ class ApiClient {
    * Upload an image for processing
    */
   async uploadImage(file: File): Promise<Job> {
+    const baseUrl = await ensureHealthyBackend();
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`${API_BASE}/api/upload`, {
+    const response = await fetch(`${baseUrl}/api/upload`, {
       method: 'POST',
       body: formData,
       headers: {
@@ -264,14 +325,14 @@ class ApiClient {
    * Get preview image URL
    */
   getPreviewUrl(jobId: string): string {
-    return `${API_BASE}/api/preview/${jobId}`;
+    return `${getApiBase()}/api/preview/${jobId}`;
   }
 
   /**
    * Get download URL for a product
    */
   getDownloadUrl(jobId: string, productId: string): string {
-    return `${API_BASE}/api/download/${jobId}/${productId}`;
+    return `${getApiBase()}/api/download/${jobId}/${productId}`;
   }
 
   /**
@@ -369,14 +430,25 @@ class ApiClient {
    * Get original image URL
    */
   getOriginalImageUrl(jobId: string): string {
-    return `${API_BASE}/api/preview/${jobId}/original`;
+    return `${getApiBase()}/api/preview/${jobId}/original`;
   }
 
   /**
    * Get styled image URL
    */
   getStyledImageUrl(jobId: string): string {
-    return `${API_BASE}/api/preview/${jobId}/styled`;
+    return `${getApiBase()}/api/preview/${jobId}/styled`;
+  }
+
+  /**
+   * Get current backend status
+   */
+  getBackendStatus(): { active: 'primary' | 'fallback'; primary: string; fallback: string } {
+    return {
+      active: activeBackend,
+      primary: PRIMARY_API,
+      fallback: FALLBACK_API,
+    };
   }
 
   /**

@@ -145,20 +145,20 @@ export default function ImageUploader({
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-gray-600">
-              <ImageIcon className="w-4 h-4" />
-              <span className="text-sm truncate max-w-[200px]">
+          <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-2 text-gray-600 min-w-0">
+              <ImageIcon className="w-4 h-4 flex-shrink-0" />
+              <span className="text-sm truncate">
                 {selectedFile?.name}
               </span>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-gray-400 flex-shrink-0">
                 ({(selectedFile?.size || 0 / 1024 / 1024).toFixed(1)}MB)
               </span>
             </div>
             <button
               onClick={handleUploadClick}
               disabled={isUploading}
-              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
             >
               {isUploading ? (
                 <>
