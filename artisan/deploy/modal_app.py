@@ -7,8 +7,18 @@ Run locally: modal serve artisan/deploy/modal_app.py
 Setup:
 1. pip install modal
 2. modal token new
-3. Set secrets in Modal dashboard (REPLICATE_API_TOKEN, STRIPE_API_KEY, etc.)
+3. Create secrets in Modal dashboard (https://modal.com/secrets):
+   - Create a secret group named "artisan-secrets" with these keys:
+     - REPLICATE_API_TOKEN: Get from https://replicate.com/account/api-tokens
+     - STRIPE_API_KEY: Get from https://dashboard.stripe.com/apikeys (sk_live_... or sk_test_...)
+     - STRIPE_WEBHOOK_SECRET: Optional, for payment webhooks
 4. modal deploy artisan/deploy/modal_app.py
+
+The deployed URL will be:
+  https://<your-username>--artisan-api-fastapi-app.modal.run
+
+Test with:
+  curl https://<your-username>--artisan-api-fastapi-app.modal.run/health
 """
 
 import modal
@@ -16,7 +26,7 @@ import modal
 # Create Modal app
 app = modal.App("artisan-api")
 
-# Define the container image with all dependencies
+# Define the container image with all dependencies and local source
 image = (
     modal.Image.debian_slim(python_version="3.11")
     .apt_install("libgl1", "libglib2.0-0", "libsm6", "libxext6", "libxrender1")
@@ -43,22 +53,20 @@ image = (
         "requests>=2.28.0",
         # Payment
         "stripe>=5.0.0",
+        # Env loading
+        "python-dotenv>=1.0.0",
     )
-)
-
-# Mount the artisan source code
-artisan_mount = modal.Mount.from_local_dir(
-    local_path="artisan",
-    remote_path="/root/artisan",
-    condition=lambda path: not any(
-        x in path for x in ["__pycache__", ".pyc", "outputs/", "uploads/", ".git"]
-    ),
+    # Add local artisan source code to the image (Modal 1.0+ pattern)
+    .add_local_dir(
+        local_path="artisan",
+        remote_path="/root/artisan",
+        ignore=["__pycache__", "*.pyc", "outputs/", "uploads/", ".git", "*.egg-info"],
+    )
 )
 
 
 @app.function(
     image=image,
-    mounts=[artisan_mount],
     secrets=[modal.Secret.from_name("artisan-secrets")],  # Create in Modal dashboard
     timeout=600,  # 10 minute timeout for processing
     memory=4096,  # 4GB RAM
@@ -78,7 +86,6 @@ def fastapi_app():
 # Optional: GPU variant for faster YOLO processing
 @app.function(
     image=image,
-    mounts=[artisan_mount],
     secrets=[modal.Secret.from_name("artisan-secrets")],
     gpu="T4",  # Cheapest GPU option (~$0.58/hr)
     timeout=600,
@@ -94,9 +101,5 @@ def fastapi_app_gpu():
     return app
 
 
-# Health check endpoint for monitoring
-@app.function(image=modal.Image.debian_slim())
-@modal.web_endpoint(method="GET")
-def health():
-    """Health check endpoint."""
-    return {"status": "healthy", "service": "artisan-api"}
+# Health check is already built into the main API at /health
+# No need for a separate endpoint

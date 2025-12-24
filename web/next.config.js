@@ -65,6 +65,32 @@ const nextConfig = {
             ? `${process.env.NEXT_PUBLIC_API_URL}/api/promo/:path*`
             : 'http://localhost:8000/api/promo/:path*',
         },
+        // Style transfer endpoints
+        {
+          source: '/api/styles',
+          destination: process.env.NEXT_PUBLIC_API_URL
+            ? `${process.env.NEXT_PUBLIC_API_URL}/api/styles`
+            : 'http://localhost:8000/api/styles',
+        },
+        {
+          source: '/api/style-transfer',
+          destination: process.env.NEXT_PUBLIC_API_URL
+            ? `${process.env.NEXT_PUBLIC_API_URL}/api/style-transfer`
+            : 'http://localhost:8000/api/style-transfer',
+        },
+        {
+          source: '/api/style-transfer/:path*',
+          destination: process.env.NEXT_PUBLIC_API_URL
+            ? `${process.env.NEXT_PUBLIC_API_URL}/api/style-transfer/:path*`
+            : 'http://localhost:8000/api/style-transfer/:path*',
+        },
+        // Job status endpoint
+        {
+          source: '/api/job/:path*',
+          destination: process.env.NEXT_PUBLIC_API_URL
+            ? `${process.env.NEXT_PUBLIC_API_URL}/api/job/:path*`
+            : 'http://localhost:8000/api/job/:path*',
+        },
       ],
     };
   },
@@ -74,6 +100,18 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '8000',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.modal.run',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.ngrok-free.app',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.ngrok.io',
       },
     ],
   },
