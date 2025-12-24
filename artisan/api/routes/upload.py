@@ -16,8 +16,8 @@ from ..models.schemas import JobResponse, JobStatus
 router = APIRouter()
 
 
-# In-memory job storage (replace with database in production)
-jobs_db: dict = {}
+# Shared job storage (works across Modal instances)
+from ..shared_db import jobs_db
 
 
 class UploadResponse(BaseModel):
