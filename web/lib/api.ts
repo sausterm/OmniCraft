@@ -3,10 +3,10 @@
  * Supports primary (local/ngrok) and fallback (cloud) backends
  */
 
-// Primary backend (local ngrok tunnel)
-const PRIMARY_API = process.env.NEXT_PUBLIC_API_URL || '';
-// Fallback backend (Modal/Railway cloud)
-const FALLBACK_API = process.env.NEXT_PUBLIC_FALLBACK_API_URL || '';
+// Primary backend - Modal cloud (hardcoded for production)
+const PRIMARY_API = process.env.NEXT_PUBLIC_API_URL || 'https://sausterm--artisan-api-fastapi-app.modal.run';
+// Fallback backend (optional secondary)
+const FALLBACK_API = process.env.NEXT_PUBLIC_FALLBACK_API_URL || 'https://sausterm--artisan-api-fastapi-app.modal.run';
 
 // Track which backend is active
 let activeBackend: 'primary' | 'fallback' = 'primary';
