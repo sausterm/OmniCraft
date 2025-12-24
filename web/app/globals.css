@@ -111,3 +111,62 @@ html {
     font-size: 16px !important;
   }
 }
+
+/* Sticky CTA wrapper for mobile */
+.sticky-cta-wrapper {
+  @apply mt-6;
+}
+
+@media (max-width: 640px) {
+  .sticky-cta-wrapper {
+    @apply fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 shadow-lg z-40;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0));
+  }
+
+  /* Add padding to body to prevent content from being hidden behind sticky CTA */
+  body:has(.sticky-cta-wrapper) {
+    padding-bottom: 100px;
+  }
+}
+
+/* Improved range slider touch targets */
+input[type="range"] {
+  @apply h-3 cursor-pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  @apply w-6 h-6 rounded-full bg-primary-600 cursor-pointer border-2 border-white shadow-md;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="range"]::-moz-range-thumb {
+  @apply w-6 h-6 rounded-full bg-primary-600 cursor-pointer border-2 border-white shadow-md;
+}
+
+/* Better touch targets for model size buttons on mobile */
+@media (max-width: 640px) {
+  .model-size-btn {
+    @apply min-h-[50px] text-xs;
+  }
+}
+
+/* Preset card active states */
+.preset-card {
+  @apply transition-all duration-200;
+}
+
+.preset-card:active {
+  @apply scale-[0.98];
+}
+
+/* Style badge animations */
+.style-badge {
+  @apply transition-all duration-200;
+}
+
+.style-badge:hover {
+  @apply scale-105;
+}

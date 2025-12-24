@@ -2,24 +2,23 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, AlertCircle, Check } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertCircle, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import ImageUploader from '@/components/ImageUploader';
 import ConfigPanel from '@/components/ConfigPanel';
 import StyleSelector from '@/components/StyleSelector';
+import PresetSelector, { PresetType, getPresetConfig } from '@/components/PresetSelector';
 import api, { ProcessConfig, Job } from '@/lib/api';
 
-type Stage = 'upload' | 'configure' | 'style' | 'processing';
+// Simplified 2-step flow: upload (with config) -> style -> processing
+type Stage = 'upload' | 'style' | 'processing';
 
 export default function UploadPage() {
   const router = useRouter();
   const [stage, setStage] = useState<Stage>('upload');
   const [job, setJob] = useState<Job | null>(null);
-  const [config, setConfig] = useState<ProcessConfig>({
-    model_size: 'm',
-    confidence: 0.25,
-    num_colors: 32,
-    min_region_size: 100,
-  });
+  const [selectedPreset, setSelectedPreset] = useState<PresetType>('balanced');
+  const [config, setConfig] = useState<ProcessConfig>(getPresetConfig('balanced'));
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,12 +33,17 @@ export default function UploadPage() {
     try {
       const uploadedJob = await api.uploadImage(file);
       setJob(uploadedJob);
-      setStage('configure');
+      // Stay on upload stage - preset selector appears below
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setIsUploading(false);
     }
+  }, []);
+
+  const handlePresetChange = useCallback((preset: PresetType, presetConfig: ProcessConfig) => {
+    setSelectedPreset(preset);
+    setConfig(presetConfig);
   }, []);
 
   const handleProcess = useCallback(async () => {
@@ -71,7 +75,7 @@ export default function UploadPage() {
       router.push(`/preview/${job.job_id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Processing failed');
-      setStage('configure');
+      setStage('style');
     } finally {
       setIsProcessing(false);
     }
@@ -97,16 +101,20 @@ export default function UploadPage() {
           </p>
         </div>
 
-        {/* Progress Steps */}
-        <div className="flex items-center justify-center mb-8 overflow-x-auto">
-          {['Upload', 'Configure', 'Style', 'Process'].map((step, index) => {
-            const stages: Stage[] = ['upload', 'configure', 'style', 'processing'];
-            const stepIndex = stages.indexOf(stage);
-            const isActive = index <= stepIndex;
-            const isCurrent = index === stepIndex;
+        {/* Progress Steps - Simplified 2-step flow */}
+        <div className="flex items-center justify-center mb-8">
+          {[
+            { label: 'Upload & Configure', stage: 'upload' as Stage },
+            { label: 'Style & Generate', stage: 'style' as Stage },
+          ].map((step, index) => {
+            const stages: Stage[] = ['upload', 'style', 'processing'];
+            const currentStageIndex = stages.indexOf(stage);
+            const stepStageIndex = stages.indexOf(step.stage);
+            const isActive = stepStageIndex <= currentStageIndex;
+            const isCurrent = step.stage === stage || (stage === 'processing' && step.stage === 'style');
 
             return (
-              <div key={step} className="flex items-center flex-shrink-0">
+              <div key={step.label} className="flex items-center flex-shrink-0">
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                     isActive
@@ -114,19 +122,23 @@ export default function UploadPage() {
                       : 'bg-gray-200 text-gray-500'
                   } ${isCurrent ? 'ring-4 ring-primary-100' : ''}`}
                 >
-                  {index + 1}
+                  {isActive && stepStageIndex < currentStageIndex ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    index + 1
+                  )}
                 </div>
                 <span
                   className={`ml-2 text-sm font-medium ${
                     isActive ? 'text-gray-900' : 'text-gray-500'
                   }`}
                 >
-                  {step}
+                  {step.label}
                 </span>
-                {index < 3 && (
+                {index < 1 && (
                   <div
-                    className={`w-8 sm:w-12 h-0.5 mx-2 sm:mx-4 ${
-                      index < stepIndex ? 'bg-primary-600' : 'bg-gray-200'
+                    className={`w-12 sm:w-16 h-0.5 mx-3 sm:mx-4 ${
+                      stepStageIndex < currentStageIndex ? 'bg-primary-600' : 'bg-gray-200'
                     }`}
                   />
                 )}
@@ -148,58 +160,88 @@ export default function UploadPage() {
 
         {/* Stage Content */}
         {stage === 'upload' && (
-          <div className="card">
-            <h2 className="font-semibold text-gray-900 mb-4">
-              Step 1: Upload Your Image
-            </h2>
-            <ImageUploader onUpload={handleUpload} isUploading={isUploading} />
-          </div>
-        )}
-
-        {stage === 'configure' && job && (
           <div className="space-y-6">
+            {/* Upload Card */}
             <div className="card">
               <h2 className="font-semibold text-gray-900 mb-4">
-                Step 2: Configure Processing
+                {job ? 'Your Image' : 'Step 1: Upload Your Image'}
               </h2>
-              <div className="bg-gray-50 rounded-lg p-4 flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">🖼️</span>
+
+              {job ? (
+                <div className="space-y-4">
+                  {/* Image preview */}
+                  <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                    <img
+                      src={api.getOriginalImageUrl(job.job_id)}
+                      alt="Uploaded"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-gray-900">{job.filename}</p>
+                      <p className="text-sm text-gray-500">Ready to process</p>
+                    </div>
+                    <button
+                      onClick={() => setJob(null)}
+                      className="text-sm text-gray-500 hover:text-gray-700"
+                    >
+                      Change image
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium text-gray-900">{job.filename}</p>
-                  <p className="text-sm text-gray-500">
-                    Ready to process • Job ID: {job.job_id.slice(0, 8)}...
-                  </p>
-                </div>
-              </div>
+              ) : (
+                <ImageUploader onUpload={handleUpload} isUploading={isUploading} />
+              )}
             </div>
 
-            <ConfigPanel
-              config={config}
-              onChange={setConfig}
-              disabled={isProcessing}
-            />
+            {/* Preset Selector - appears after upload */}
+            {job && (
+              <>
+                <div className="card">
+                  <PresetSelector
+                    selectedPreset={selectedPreset}
+                    onPresetChange={handlePresetChange}
+                    disabled={isProcessing}
+                  />
 
-            <div className="flex gap-4">
-              <button
-                onClick={() => {
-                  setStage('upload');
-                  setJob(null);
-                }}
-                className="btn-secondary"
-                disabled={isProcessing}
-              >
-                Change Image
-              </button>
-              <button
-                onClick={() => setStage('style')}
-                className="btn-primary flex-1"
-                disabled={isProcessing}
-              >
-                Continue to Style
-              </button>
-            </div>
+                  {/* Advanced Settings Toggle */}
+                  <button
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mt-4"
+                  >
+                    {showAdvanced ? (
+                      <ChevronUp className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
+                    Advanced settings
+                  </button>
+
+                  {showAdvanced && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <ConfigPanel
+                        config={config}
+                        onChange={setConfig}
+                        disabled={isProcessing}
+                        inline
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Continue Button - Mobile sticky */}
+                <div className="sticky-cta-wrapper">
+                  <button
+                    onClick={() => setStage('style')}
+                    className="btn-primary w-full"
+                    disabled={isProcessing}
+                  >
+                    Continue to Style Selection
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -208,9 +250,9 @@ export default function UploadPage() {
             {/* Image Preview */}
             <div className="card">
               <h2 className="font-semibold text-gray-900 mb-4">
-                Step 3: Apply Artistic Style (Optional)
+                Step 2: Choose Your Style
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-500 mb-2">Original Image</p>
                   <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
@@ -224,7 +266,7 @@ export default function UploadPage() {
                 {styledImageUrl && (
                   <div>
                     <p className="text-sm text-gray-500 mb-2 flex items-center gap-1">
-                      Styled Image
+                      Styled Preview
                       <Check className="w-4 h-4 text-green-500" />
                     </p>
                     <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
@@ -253,28 +295,24 @@ export default function UploadPage() {
               currentStyleConfig={styleApplied ? { style: 'applied' } : null}
             />
 
-            {/* Navigation Buttons */}
-            <div className="flex gap-4">
-              <button
-                onClick={() => setStage('configure')}
-                className="btn-secondary"
-              >
-                Back to Configure
-              </button>
-              <button
-                onClick={handleProcess}
-                className="btn-primary flex-1"
-                disabled={isProcessing}
-              >
-                {styleApplied ? 'Generate with Style' : 'Skip Style & Generate'}
-              </button>
+            {/* Navigation Buttons - Mobile sticky */}
+            <div className="sticky-cta-wrapper">
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setStage('upload')}
+                  className="btn-secondary"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={handleProcess}
+                  className="btn-primary flex-1"
+                  disabled={isProcessing}
+                >
+                  {styleApplied ? 'Generate Painting Guide' : 'Generate without Style'}
+                </button>
+              </div>
             </div>
-
-            {!styleApplied && (
-              <p className="text-center text-sm text-gray-500">
-                You can skip this step to use your original image without style transfer.
-              </p>
-            )}
           </div>
         )}
 
@@ -302,4 +340,3 @@ export default function UploadPage() {
     </div>
   );
 }
-// Force rebuild Tue Dec 23 23:13:42 EST 2025

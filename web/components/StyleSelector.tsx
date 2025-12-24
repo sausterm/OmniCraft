@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Palette, Sparkles, Loader2, X, ChevronDown, ChevronUp, Wand2 } from 'lucide-react';
+import { Palette, Sparkles, Loader2, X, ChevronDown, ChevronUp, Wand2, Camera, Check, AlertTriangle } from 'lucide-react';
 import type { StyleInfo, StyleTransferRequest } from '@/lib/api';
 import api from '@/lib/api';
 
@@ -16,8 +16,68 @@ interface StyleSelectorProps {
   disabled?: boolean;
 }
 
+// Style reliability ratings
+type ReliabilityLevel = 'high' | 'medium' | 'low' | 'none';
+
+interface StyleMetadata {
+  reliability: ReliabilityLevel;
+  badge?: string;
+  badgeColor?: string;
+  bestFor?: string;
+}
+
+const STYLE_METADATA: Record<string, StyleMetadata> = {
+  photo_realistic: {
+    reliability: 'none',
+    badge: 'Original',
+    badgeColor: 'bg-blue-500',
+    bestFor: 'Keep your original image'
+  },
+  oil_painting: {
+    reliability: 'high',
+    badge: 'Recommended',
+    badgeColor: 'bg-green-500',
+    bestFor: 'Works great with all images'
+  },
+  van_gogh: {
+    reliability: 'high',
+    badge: 'Recommended',
+    badgeColor: 'bg-green-500',
+    bestFor: 'Best for landscapes & nature'
+  },
+  sketch: {
+    reliability: 'medium',
+    bestFor: 'Portraits & simple subjects'
+  },
+  anime: {
+    reliability: 'medium',
+    bestFor: 'Characters & illustrations'
+  },
+  pop_art: {
+    reliability: 'medium',
+    bestFor: 'Bold subjects & portraits'
+  },
+  watercolor: {
+    reliability: 'low',
+    badge: 'Experimental',
+    badgeColor: 'bg-amber-500',
+    bestFor: 'Simple scenes only'
+  },
+  britto_style: {
+    reliability: 'low',
+    badge: 'Experimental',
+    badgeColor: 'bg-amber-500',
+    bestFor: 'Simple, bold subjects'
+  },
+  custom: {
+    reliability: 'medium',
+    bestFor: 'Describe your own style'
+  },
+};
+
 // Style card images (placeholders - can be replaced with actual thumbnails)
 const STYLE_IMAGES: Record<string, string> = {
+  photo_realistic: '/styles/photo.jpg',
   pop_art: '/styles/pop_art.jpg',
   britto_style: '/styles/britto.jpg',
   van_gogh: '/styles/van_gogh.jpg',
@@ -31,6 +91,7 @@ const STYLE_IMAGES: Record<string, string> = {
 
 // Fallback gradient backgrounds for styles without images
 const STYLE_GRADIENTS: Record<string, string> = {
+  photo_realistic: 'from-slate-400 via-slate-500 to-slate-600',
   pop_art: 'from-pink-500 via-red-500 to-yellow-500',
   britto_style: 'from-yellow-400 via-red-500 to-blue-500',
   van_gogh: 'from-blue-600 via-yellow-500 to-orange-500',
@@ -41,6 +102,27 @@ const STYLE_GRADIENTS: Record<string, string> = {
   sketch: 'from-gray-300 via-gray-400 to-gray-500',
   custom: 'from-violet-500 via-purple-500 to-fuchsia-500',
 };
+
+// Helper to reorder styles by reliability
+function reorderStylesByReliability(styles: StyleInfo[]): StyleInfo[] {
+  const reliabilityOrder: Record<ReliabilityLevel, number> = {
+    none: 0, // photo_realistic first
+    high: 1,
+    medium: 2,
+    low: 3,
+  };
+
+  return [...styles].sort((a, b) => {
+    // Custom always goes last
+    if (a.id === 'custom') return 1;
+    if (b.id === 'custom') return -1;
+
+    const aReliability = STYLE_METADATA[a.id]?.reliability ?? 'medium';
+    const bReliability = STYLE_METADATA[b.id]?.reliability ?? 'medium';
+
+    return reliabilityOrder[aReliability] - reliabilityOrder[bReliability];
+  });
+}
 
 export default function StyleSelector({
   jobId,
@@ -70,18 +152,29 @@ export default function StyleSelector({
     const loadStyles = async () => {
       try {
         const loadedStyles = await api.getStyles();
-        setStyles(loadedStyles);
+        // Add photo_realistic if not present and reorder by reliability
+        const hasPhotoRealistic = loadedStyles.some(s => s.id === 'photo_realistic');
+        const orderedStyles = hasPhotoRealistic ? loadedStyles : [
+          { id: 'photo_realistic', name: 'Photo-Realistic', description: 'Use your original image as-is' },
+          ...loadedStyles
+        ];
+        setStyles(reorderStylesByReliability(orderedStyles));
       } catch (err) {
         console.error('Failed to load styles:', err);
-        // Use default styles as fallback
+        // Use default styles as fallback, ordered by reliability
         setStyles([
-          { id: 'van_gogh', name: 'Van Gogh', description: 'Post-impressionist swirling brushstrokes' },
-          { id: 'pop_art', name: 'Pop Art', description: 'Bold colors, thick black outlines' },
-          { id: 'britto_style', name: 'Romero Britto', description: 'Geometric pop art with vibrant colors' },
-          { id: 'anime', name: 'Anime', description: 'Japanese animation style' },
-          { id: 'watercolor', name: 'Watercolor', description: 'Soft edges, translucent colors' },
+          // High reliability / special
+          { id: 'photo_realistic', name: 'Photo-Realistic', description: 'Use your original image as-is' },
           { id: 'oil_painting', name: 'Oil Painting', description: 'Rich colors, visible brushstrokes' },
+          { id: 'van_gogh', name: 'Van Gogh', description: 'Post-impressionist swirling brushstrokes' },
+          // Medium reliability
           { id: 'sketch', name: 'Pencil Sketch', description: 'Hand-drawn style with linework' },
+          { id: 'anime', name: 'Anime', description: 'Japanese animation style' },
+          { id: 'pop_art', name: 'Pop Art', description: 'Bold colors, thick black outlines' },
+          // Low reliability (experimental)
+          { id: 'watercolor', name: 'Watercolor', description: 'Soft edges, translucent colors' },
+          { id: 'britto_style', name: 'Romero Britto', description: 'Geometric pop art with vibrant colors' },
+          // Custom always last
           { id: 'custom', name: 'Custom Style', description: 'Describe your own style' },
         ]);
       }
@@ -91,6 +184,13 @@ export default function StyleSelector({
 
   const handleApplyStyle = async () => {
     if (!selectedStyle || disabled) return;
+
+    // Photo-realistic = skip style transfer, use original image
+    if (selectedStyle === 'photo_realistic') {
+      // Notify parent that we're using original (no style)
+      onStyleRemoved?.();
+      return;
+    }
 
     // Validate custom prompt if needed
     if (selectedStyle === 'custom' && !customPrompt.trim()) {
@@ -202,47 +302,67 @@ export default function StyleSelector({
         </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-          {styles.map((style) => (
-            <button
-              key={style.id}
-              onClick={() => setSelectedStyle(style.id)}
-              disabled={disabled || isApplying}
-              className={`relative group rounded-lg overflow-hidden transition-all ${
-                selectedStyle === style.id
-                  ? 'ring-2 ring-primary-500 ring-offset-2'
-                  : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-1'
-              } ${disabled || isApplying ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              {/* Background gradient */}
-              <div
-                className={`aspect-square bg-gradient-to-br ${
-                  STYLE_GRADIENTS[style.id] || 'from-gray-400 to-gray-600'
-                } flex items-center justify-center`}
+          {styles.map((style) => {
+            const metadata = STYLE_METADATA[style.id];
+            const hasBadge = metadata?.badge;
+
+            return (
+              <button
+                key={style.id}
+                onClick={() => setSelectedStyle(style.id)}
+                disabled={disabled || isApplying}
+                className={`relative group rounded-lg overflow-hidden transition-all ${
+                  selectedStyle === style.id
+                    ? 'ring-2 ring-primary-500 ring-offset-2'
+                    : 'hover:ring-2 hover:ring-gray-300 hover:ring-offset-1'
+                } ${disabled || isApplying ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                {style.id === 'custom' ? (
-                  <Wand2 className="w-8 h-8 text-white/80" />
-                ) : (
-                  <Sparkles className="w-8 h-8 text-white/80" />
-                )}
-              </div>
-
-              {/* Label overlay */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                <p className="text-white text-sm font-medium truncate">
-                  {style.name}
-                </p>
-              </div>
-
-              {/* Selected check */}
-              {selectedStyle === style.id && (
-                <div className="absolute top-2 right-2 w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center">
-                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                {/* Background gradient */}
+                <div
+                  className={`aspect-square bg-gradient-to-br ${
+                    STYLE_GRADIENTS[style.id] || 'from-gray-400 to-gray-600'
+                  } flex items-center justify-center`}
+                >
+                  {style.id === 'custom' ? (
+                    <Wand2 className="w-8 h-8 text-white/80" />
+                  ) : style.id === 'photo_realistic' ? (
+                    <Camera className="w-8 h-8 text-white/80" />
+                  ) : (
+                    <Sparkles className="w-8 h-8 text-white/80" />
+                  )}
                 </div>
-              )}
-            </button>
-          ))}
+
+                {/* Label overlay with badge */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                  <p className="text-white text-sm font-medium truncate">
+                    {style.name}
+                  </p>
+                  {hasBadge && (
+                    <span
+                      className={`inline-flex items-center gap-1 text-[10px] font-medium text-white px-1.5 py-0.5 rounded ${metadata.badgeColor} mt-1`}
+                    >
+                      {metadata.badge === 'Recommended' && (
+                        <Check className="w-2.5 h-2.5" />
+                      )}
+                      {metadata.badge === 'Experimental' && (
+                        <AlertTriangle className="w-2.5 h-2.5" />
+                      )}
+                      {metadata.badge}
+                    </span>
+                  )}
+                </div>
+
+                {/* Selected check */}
+                {selectedStyle === style.id && (
+                  <div className="absolute top-2 right-2 w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center">
+                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Custom prompt input */}
@@ -271,6 +391,16 @@ export default function StyleSelector({
               </span>{' '}
               {styles.find(s => s.id === selectedStyle)?.description}
             </p>
+            {STYLE_METADATA[selectedStyle]?.bestFor && (
+              <p className="text-xs text-gray-500 mt-1">
+                Best for: {STYLE_METADATA[selectedStyle].bestFor}
+              </p>
+            )}
+            {selectedStyle === 'photo_realistic' && (
+              <p className="text-xs text-blue-600 mt-1 font-medium">
+                This will skip style transfer and use your original image.
+              </p>
+            )}
           </div>
         )}
 
@@ -382,6 +512,11 @@ export default function StyleSelector({
               <Loader2 className="w-5 h-5 animate-spin" />
               Applying Style...
             </>
+          ) : selectedStyle === 'photo_realistic' ? (
+            <>
+              <Camera className="w-5 h-5" />
+              Use Original Image
+            </>
           ) : (
             <>
               <Sparkles className="w-5 h-5" />
@@ -391,7 +526,7 @@ export default function StyleSelector({
         </button>
 
         {/* Processing time note */}
-        {selectedStyle && !hasAppliedStyle && (
+        {selectedStyle && selectedStyle !== 'photo_realistic' && !hasAppliedStyle && (
           <p className="text-xs text-gray-500 text-center mt-2">
             Style transfer typically takes 3-5 minutes
           </p>
