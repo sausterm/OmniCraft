@@ -71,6 +71,8 @@ image = (
     timeout=600,  # 10 minute timeout for processing
     memory=4096,  # 4GB RAM
     cpu=2,
+    allow_concurrent_inputs=100,  # Handle multiple requests on same instance
+    container_idle_timeout=300,  # Keep warm for 5 minutes
 )
 @modal.asgi_app()
 def fastapi_app():
