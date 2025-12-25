@@ -69,9 +69,19 @@ export default function RootLayout({
           <main>{children}</main>
           <footer className="border-t border-gray-100 bg-white mt-auto">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <p className="text-center text-gray-500 text-sm">
-                &copy; {new Date().getFullYear()} Artisan Paint-by-Numbers. All rights reserved.
-              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p className="text-gray-500 text-sm">
+                  &copy; {new Date().getFullYear()} Artisan Paint-by-Numbers. All rights reserved.
+                </p>
+                <div className="flex items-center gap-6">
+                  <a href="/terms" className="text-gray-500 hover:text-gray-700 text-sm transition-colors">
+                    Terms of Service
+                  </a>
+                  <a href="/privacy" className="text-gray-500 hover:text-gray-700 text-sm transition-colors">
+                    Privacy Policy
+                  </a>
+                </div>
+              </div>
             </div>
           </footer>
         </Providers>
