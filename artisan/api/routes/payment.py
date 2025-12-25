@@ -37,13 +37,7 @@ async def create_checkout(request: CheckoutRequest):
 
     Returns a URL to redirect the user to Stripe's hosted checkout.
     """
-    if not STRIPE_AVAILABLE:
-        raise HTTPException(
-            status_code=503,
-            detail="Payment system not configured. Contact support."
-        )
-
-    # Validate job
+    # Validate job first (before Stripe check - free/promo orders don't need Stripe)
     if request.job_id not in jobs_db:
         raise HTTPException(status_code=404, detail="Job not found")
 
@@ -98,6 +92,13 @@ async def create_checkout(request: CheckoutRequest):
         return CheckoutResponse(
             checkout_url=request.success_url or settings.stripe_success_url.format(job_id=request.job_id),
             session_id="free",
+        )
+
+    # Only check Stripe when we have paid items
+    if not STRIPE_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="Payment system not configured. Contact support."
         )
 
     # Build URLs
